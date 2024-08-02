@@ -16,13 +16,19 @@ def main():
     model = "MX-106"
     servos = init_servo(port, protocol, baudrate, servo_ids, max, min, model)
     print("Servos Initialized")
+
     while True:
-        # Velocity Input Range is 0->1023 for CCW and 1024->2047 for CW
-        velocity = int(input("Enter velocity: "))
-        if velocity < 0 or velocity > 2047 or velocity == None:
+        # Velocity Input Range is 0->500 for CCW and 1024->1524 for CW
+        velocity = input("Enter velocity for Servos (e.g. 200,300): ").split(" ")
+        # Conversion of list of str to list of int
+        velocity = [int(num) for num in velocity]
+        if any(num > 500 for num in velocity) or any(num < -500 for num in velocity):
             print("Invalid velocity")
         else: 
-            move_velo(servos, velocity)
+            for i in range(len(velocity)):
+                if velocity[i] < 0:
+                    velocity[i] = abs(velocity[i]) + 1024
+            move_velocity(servos, velocity)
             
           
     
@@ -55,21 +61,19 @@ def init_servo(port, protocol, baudrate, servo_ids, max, min, model):
     
     return servo
 
-def move_velo(servos, velocity):
+def move_velocity(servos, velocity):
     portHandler = servos[1].port_handler
     packetHandler = servos[1].packet_handler
-    motor_ids = list(servos.keys())
+    servo_ids = list(servos.keys())
 
-    # Velocity input must be a converted hex number
-    velocity = decimal_to_hex(velocity)
-    print(velocity)
-    data = [int(velocity[2:], 16), int(velocity[:2], 16)]
-    print(data)
     groupSyncWrite = dxl.GroupSyncWrite(portHandler, packetHandler, addresses["MX-106"]["moving_speed"], addresses["MX-106"]["moving_speed_length"])
-    for ids in motor_ids:
+    for ids, data in zip(servo_ids,velocity):
+        print(data)
+        data = decimal_to_hex(data)
+        data = [int(data[2:], 16), int(data[:2], 16)]
         dxl_addparam_result = groupSyncWrite.addParam(ids, data)
         if not dxl_addparam_result:
-            print(f"Failed to add parameter for Dynamixel ID {motor_ids[0]}")
+            print(f"Failed to add parameter for Dynamixel ID {servo_ids[0]}")
             quit()
 
     dxl_comm_result = groupSyncWrite.txPacket()
