@@ -7,7 +7,7 @@ import numpy as np
 
 def main():
     #Parameters
-    port = "/dev/ttyUSB2"
+    port = "COM4"
     protocol = 1
     baudrate = 1000000
     servo_ids = [1, 2]
@@ -66,7 +66,7 @@ def move_velocity(servos, velocity):
     packetHandler = servos[1].packet_handler
     servo_ids = list(servos.keys())
 
-    groupSyncWrite = dxl.GroupSyncWrite(portHandler, packetHandler, addresses["MX-106"]["moving_speed"], addresses["MX-106"]["moving_speed_length"])
+    groupSyncWrite = dxl.GroupSyncWrite(portHandler, packetHandler, addresses["MX-106"]["moving_speed"], addresses["MX-106"]["moving_speed_length"]) #contains information 
     for ids, data in zip(servo_ids,velocity):
         print(data)
         data = decimal_to_hex(data)
