@@ -112,7 +112,7 @@ def _bulk_write_protocol_one(
     )
 
     for servo, data in zip(servos, velocities):
-        servo_id = servo.id
+        servo_id = servo.motor_id
 
         data = _decimal_to_hex(data)
         data = [int(data[2:], 16), int(data[:2], 16)]
@@ -151,7 +151,31 @@ def _bulk_write_protocol_two(
         address_length: int - length of the address
     """
 
-    raise NotImplementedError("Bulk writing using protocol two is not implemented")
+    group_bulk_write = dxl.GroupBulkWrite(
+        port_handler,
+        packet_handler
+    )
+
+    for servo, data in zip(servos, velocities):
+        servo_id = servo.motor_id
+
+        data = _decimal_to_hex(data)
+        data = [int(data[2:], 16), int(data[:2], 16)]
+
+        dxl_addparam_result = group_bulk_write.addParam(servo_id, address,
+        address_length, data)
+
+        if not dxl_addparam_result:
+            print(f"Failed to add parameter for Dynamixel ID {servo_id}")
+            quit()
+
+    dxl_comm_result = group_bulk_write.txPacket()
+
+    if dxl_comm_result != dxl.COMM_SUCCESS:
+        print("%s" % packet_handler.getTxRxResult(dxl_comm_result))
+
+    group_bulk_write.clearParam()
+
 
 
 def _decimal_to_hex(decimal):
