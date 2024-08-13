@@ -60,33 +60,33 @@ def set_velocity(servos, velocities):
             raise ValueError(f"Protocol {protocol} not supported")
 
 
-def _sort_servos_by_model(servos: list[Servo], velocities: list[float]):
+def _sort_servos_by_model(servos: list[Servo], payloads: list[float]):
     """
     Sort the servos by model
 
     Args:
         servos: list(Servo) - list of servos to sort
-        velocities: list(float) - list of velocities to sort
+        payloads: list(float) - list of payloads to eventually send to the servos
 
     Returns:
-        servos_by_model: dict(str, list(tuple(Servo, float))) - dictionary of tuples of servos and velocities sorted by model
+        servos_by_model: dict(str, list(tuple(Servo, float))) - dictionary of tuples of servos and payloads sorted by model
     """
     servos_by_model = {}
 
-    for servo, velocity in zip(servos, velocities):
+    for servo, data in zip(servos, payloads):
         model = servo.model
 
         if model not in servos_by_model:
             servos_by_model[model] = []
 
-        servos_by_model[model].append((servo, velocity))
+        servos_by_model[model].append((servo, data))
 
     return servos_by_model
 
 
 def _bulk_write_protocol_one(
     servos: list[Servo],
-    velocities: list[float],
+    payloads: list[float],
     port_handler,
     packet_handler,
     address,
@@ -97,7 +97,7 @@ def _bulk_write_protocol_one(
 
     Args:
         servos: list(Servo) - list of servos to send velocities to
-        velocities: list(float) - list of velocities to send to the servos
+        payloads: list(float) - list of payloads to send to the servos
         port_handler: PortHandler - port handler to use for communication
         packet_handler: PacketHandler - packet handler to use for communication
         address: int - address to write to
@@ -111,7 +111,7 @@ def _bulk_write_protocol_one(
         address_length,
     )
 
-    for servo, data in zip(servos, velocities):
+    for servo, data in zip(servos, payloads):
         servo_id = servo.motor_id
 
         data = _decimal_to_hex(data)
@@ -133,7 +133,7 @@ def _bulk_write_protocol_one(
 
 def _bulk_write_protocol_two(
     servos: list[Servo],
-    velocities: list[float],
+    payloads: list[float],
     port_handler,
     packet_handler,
     address,
@@ -144,7 +144,7 @@ def _bulk_write_protocol_two(
 
     Args:
         servos: list(Servo) - list of servos to send velocities to
-        velocities: list(float) - list of velocities to send to the servos
+        payloads: list(float) - list of payloads to send to the servos
         port_handler: PortHandler - port handler to use for communication
         packet_handler: PacketHandler - packet handler to use for communication
         address: int - address to write to
@@ -156,7 +156,7 @@ def _bulk_write_protocol_two(
         packet_handler
     )
 
-    for servo, data in zip(servos, velocities):
+    for servo, data in zip(servos, payloads):
         servo_id = servo.motor_id
 
         data = _decimal_to_hex(data)
