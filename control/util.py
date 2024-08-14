@@ -29,12 +29,17 @@ def set_velocity(servos, velocities):
         # Unpack Servos and Velocities
         servos, velocities = zip(*servos_and_velocities)
 
-        # Verify velocities are within bounds
+        # Verify velocities are within bounds, 0->500 for CCW and 1024->1524 for CW
         if any(
-            abs(velocity) > servo.max_velocity
-            for servo, velocity in zip(servos, velocities)
+            abs(velocity) > 500
+            for velocity in velocities
         ):
-            raise ValueError("Velocity out of bounds")
+            raise ValueError("Invalid velocity")
+        
+        # Convert negative values to CW values
+        for i in range(len(velocities)):
+                if velocities[i] < 0:
+                    velocities[i] = abs(velocities[i]) + 1024
 
         # Based on the address jsons from cares_lib
         address = (
