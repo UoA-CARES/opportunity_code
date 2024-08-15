@@ -10,7 +10,7 @@ class Mast:
         for _ in range(2):
             self.servos.append(
                 servo_factory.create_servo(
-                    model="XL-320",
+                    model="XL430-W250-T",
                     port="/dev/ttyUSB0",
                     protocol=2,
                     baudrate=1000000,
