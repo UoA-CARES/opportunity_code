@@ -1,5 +1,5 @@
-from util import set_velocity, servo_factory
-
+from util import set_velocity
+from servo_factory import servo_factory
 
 class Wheels:
     def __init__(self):
