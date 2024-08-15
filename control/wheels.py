@@ -6,6 +6,7 @@ class Wheels:
 
         self.servos = []
 
+        # Left and right wheels
         for _ in range(2):
             self.servos.append(
                 servo_factory.create_servo(
