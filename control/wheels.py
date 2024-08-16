@@ -6,8 +6,8 @@ class Wheels:
 
         self.servos = []
 
-        # Left and right wheels
-        for _ in range(2):
+        # Left and right wheels, with ids 1 and 2
+        for i in range(1, 3):
             self.servos.append(
                 servo_factory.create_servo(
                     model="MX-106",
@@ -16,20 +16,21 @@ class Wheels:
                     baudrate=1000000,
                     max=4095,
                     min=0,
+                    id = i
                 )
             )
 
     def move_forward(self, speed):
-        set_velocity(self.servos, [speed, speed])
-
-    def move_backward(self, speed):
-        set_velocity(self.servos, [-speed, -speed])
-
-    def turn_clockwise(self, speed):
         set_velocity(self.servos, [-speed, speed])
 
+    def move_backward(self, speed):
+        set_velocity(self.servos, [-speed, speed])
+
+    def turn_clockwise(self, speed):
+        set_velocity(self.servos, [speed, speed])
+
     def turn_counter_clockwise(self, speed):
-        set_velocity(self.servos, [speed, -speed])
+        set_velocity(self.servos, [-speed, -speed])
 
     def stop(self):
         set_velocity(self.servos, [0, 0])

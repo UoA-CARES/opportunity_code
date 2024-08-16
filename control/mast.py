@@ -6,8 +6,8 @@ class Mast:
 
         self.servos = []
 
-        #Servos located at the base of the mast and the head
-        for _ in range(2):
+        #Servos located at the base of the mast and the head, with ids 3 and 4
+        for i in range(3, 5):
             self.servos.append(
                 servo_factory.create_servo(
                     model="XL430-W250-T",
@@ -16,6 +16,7 @@ class Mast:
                     baudrate=1000000,
                     max=4095,
                     min=0,
+                    id = i
                 )
             )
 
