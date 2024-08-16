@@ -37,9 +37,11 @@ def set_velocity(servos, velocities):
             raise ValueError("Invalid velocity")
         
         # Convert negative values to CW values
-        for i in range(len(velocities)):
-                if velocities[i] < 0:
-                    velocities[i] = abs(velocities[i]) + 1024
+        list_of_velocities = list(velocities)
+        for i in range(len(list_of_velocities)):
+                if list_of_velocities[i] < 0:
+                    list_of_velocities[i] = abs(list_of_velocities[i]) + 1024
+        velocities = tuple(list_of_velocities)
 
         # Based on the address jsons from cares_lib
         address = (
