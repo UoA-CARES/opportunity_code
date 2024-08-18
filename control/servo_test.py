@@ -2,7 +2,8 @@ from cares_lib.dynamixel.Servo import Servo
 #from cares_lib.dynamixel.Servo import addresses
 import dynamixel_sdk as dxl
 from util import set_velocity, set_position
-
+import keyboard
+import time
 
 def main():
     #Parameters
@@ -12,7 +13,7 @@ def main():
     min = 0
 
     models = input("Enter models for Servos (e.g. MX-106 XL-320): ").split(" ")
-    servo_ids = list(range(1, len(models)+1))
+    servo_ids = [1, 2, 3, 4]
 
     protocols = [2] * len(models)
     for i in range(len(models)):
@@ -29,22 +30,36 @@ def main():
     for i in servos.values():
         list_of_servos.append(i)
 
-    #positions = [0]*len(models)
+    # Velocity Input Range is 0->500 for CCW and 1024->1524 for CW
+    standard_velocity = input("Set a standard velocity for Servos (e.g. 200): ")
+    standard_velocity = int(standard_velocity)
 
     while True:
-        # Velocity Input Range is 0->500 for CCW and 1024->1524 for CW
-        velocities = input("Enter velocity for Servos (e.g. 200 300): ").split(" ")
-        # Conversion of list of str to list of int
-        velocities = [int(velocity) for velocity in velocities]
-        set_velocity(list_of_servos, velocities)
+        velocities = [0] * len(models)
 
-        # increment = input("To move servos, enter a for CCW, d for CW: ")
-        # if increment == 'd':
-        #     positions = [ i+10 for i in positions]
-        # if increment == 'a':
-        #     positions = [ i-10 for i in positions]
-        # print(f"Current position at {positions[0]}")
-        # set_position(list_of_servos, positions)
+        #To drive
+        if keyboard.is_pressed('w'):
+            velocities[1] = -standard_velocity
+            velocities[2] = standard_velocity
+        if keyboard.is_pressed('s'):
+            velocities[1] = standard_velocity
+            velocities[2] = -standard_velocity
+        if keyboard.is_pressed('a'):
+            velocities[1] = -standard_velocity
+            velocities[2] = -standard_velocity
+        if keyboard.is_pressed('d'):
+            velocities[1] = standard_velocity
+            velocities[2] = standard_velocity
+        
+        #To rotate mast
+        if keyboard.is_pressed('q'):
+            velocities[3] = standard_velocity
+        if keyboard.is_pressed('e'):
+            velocities[3] = -standard_velocity
+
+        print(velocities)
+        set_velocity(list_of_servos, velocities)
+        time.sleep(0.1)
 
 def init_servo(port, baudrate, max, min, servo_init_info) -> dict[int, Servo]:
     servos = {}

@@ -47,12 +47,12 @@ def set_velocity(servos, velocities):
         address = (
             addresses[model]["moving_speed"]
             if "moving_speed" in addresses[model]
-            else addresses[model]["goal_velocity"]
+            else addresses[model]["profile_velocity"]
         )
         address_length = (
             addresses[model]["moving_speed_length"]
             if "moving_speed_length" in addresses[model]
-            else addresses[model]["goal_velocity_length"]
+            else addresses[model]["profile_velocity_length"]
         )
 
         # All servos of the same model should have the same
@@ -236,8 +236,7 @@ def _bulk_write_protocol_two(
     for servo, data in zip(servos, payloads):
         servo_id = servo.motor_id
 
-        data = _decimal_to_hex(data)
-        data = [int(data[2:], 16), int(data[:2], 16)]
+        data = [dxl.DXL_LOBYTE(dxl.DXL_LOWORD(data)), dxl.DXL_HIBYTE(dxl.DXL_LOWORD(data)), dxl.DXL_LOBYTE(dxl.DXL_HIWORD(data)), dxl.DXL_HIBYTE(dxl.DXL_HIWORD(data))]
 
         dxl_addparam_result = group_bulk_write.addParam(
             servo_id, address, address_length, data
