@@ -24,7 +24,7 @@ class Wheels:
         set_velocity(self.servos, [-speed, speed])
 
     def move_backward(self, speed):
-        set_velocity(self.servos, [-speed, speed])
+        set_velocity(self.servos, [speed, -speed])
 
     def turn_clockwise(self, speed):
         set_velocity(self.servos, [speed, speed])

@@ -14,7 +14,8 @@ class Mast:
                     port="/dev/ttyUSB0",
                     protocol=2,
                     baudrate=1000000,
-                    max=4095,
+                    #head servo needs to be limited to a range of motion of 90 degrees
+                    max=4095 if i==3 else 1024,  
                     min=0,
                     id = i
                 )
@@ -26,9 +27,15 @@ class Mast:
     def rotate_counterclockwise(self, speed):
         set_velocity([self.servos[0]], [-speed])
 
+    def stop_rotating(self):
+        set_velocity([self.servos[0]], [0])
+
     def tilt_up(self, speed):
         set_velocity([self.servos[1]], [speed])
 
     def tilt_down(self, speed):
         set_velocity([self.servos[1]], [-speed])
+
+    def stop_tilting(self):
+        set_velocity([self.servos[1]], [0])
 
