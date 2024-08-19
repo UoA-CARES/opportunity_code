@@ -7,7 +7,7 @@ import time
 
 def main():
     #Parameters
-    port = "COM4"
+    port = "COM3"
     baudrate = 1000000
     max = 4095
     min = 0
@@ -39,25 +39,24 @@ def main():
 
         #To drive
         if keyboard.is_pressed('w'):
-            velocities[1] = -standard_velocity
-            velocities[2] = standard_velocity
+            velocities[0] = -standard_velocity
+            velocities[1] = standard_velocity
         if keyboard.is_pressed('s'):
-            velocities[1] = standard_velocity
-            velocities[2] = -standard_velocity
-        if keyboard.is_pressed('a'):
+            velocities[0] = standard_velocity
             velocities[1] = -standard_velocity
-            velocities[2] = -standard_velocity
+        if keyboard.is_pressed('a'):
+            velocities[0] = -standard_velocity
+            velocities[1] = -standard_velocity
         if keyboard.is_pressed('d'):
+            velocities[0] = standard_velocity
             velocities[1] = standard_velocity
-            velocities[2] = standard_velocity
         
         #To rotate mast
         if keyboard.is_pressed('q'):
-            velocities[3] = standard_velocity
+            velocities[1] = standard_velocity
         if keyboard.is_pressed('e'):
-            velocities[3] = -standard_velocity
+            velocities[1] = -standard_velocity
 
-        print(velocities)
         set_velocity(list_of_servos, velocities)
         time.sleep(0.1)
 

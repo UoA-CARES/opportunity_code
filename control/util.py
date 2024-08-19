@@ -36,23 +36,27 @@ def set_velocity(servos, velocities):
         ):
             raise ValueError("Invalid velocity")
         
-        # Convert negative values to CW values
+        # Convert negative values to CW values depending on protocol used
         list_of_velocities = list(velocities)
         for i in range(len(list_of_velocities)):
                 if list_of_velocities[i] < 0:
-                    list_of_velocities[i] = abs(list_of_velocities[i]) + 1024
+                    if "moving_speed" in addresses[model]:
+                        list_of_velocities[i] = abs(list_of_velocities[i]) + 1024 
+                    else:
+                        list_of_velocities[i] = 4294967295 - abs(list_of_velocities[i])
+
         velocities = tuple(list_of_velocities)
 
         # Based on the address jsons from cares_lib
         address = (
             addresses[model]["moving_speed"]
             if "moving_speed" in addresses[model]
-            else addresses[model]["profile_velocity"]
+            else addresses[model]["goal_velocity"]
         )
         address_length = (
             addresses[model]["moving_speed_length"]
             if "moving_speed_length" in addresses[model]
-            else addresses[model]["profile_velocity_length"]
+            else addresses[model]["goal_velocity_length"]
         )
 
         # All servos of the same model should have the same
@@ -235,9 +239,9 @@ def _bulk_write_protocol_two(
 
     for servo, data in zip(servos, payloads):
         servo_id = servo.motor_id
-
+        
         data = [dxl.DXL_LOBYTE(dxl.DXL_LOWORD(data)), dxl.DXL_HIBYTE(dxl.DXL_LOWORD(data)), dxl.DXL_LOBYTE(dxl.DXL_HIWORD(data)), dxl.DXL_HIBYTE(dxl.DXL_HIWORD(data))]
-
+        
         dxl_addparam_result = group_bulk_write.addParam(
             servo_id, address, address_length, data
         )
