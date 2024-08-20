@@ -2,6 +2,7 @@ from cares_lib.dynamixel.Servo import Servo
 from cares_lib.dynamixel.Servo import addresses
 import dynamixel_sdk as dxl
 
+
 def set_velocity(servos, velocities):
     """
     Send velocities to the servos
@@ -35,10 +36,16 @@ def set_velocity(servos, velocities):
         ):
             raise ValueError("Invalid velocity")
         
-        # Convert negative values to CW values
-        for i in range(len(velocities)):
-                if velocities[i] < 0:
-                    velocities[i] = abs(velocities[i]) + 1024
+        # Convert negative values to CW values depending on protocol used
+        list_of_velocities = list(velocities)
+        for i in range(len(list_of_velocities)):
+                if list_of_velocities[i] < 0:
+                    if "moving_speed" in addresses[model]:
+                        list_of_velocities[i] = abs(list_of_velocities[i]) + 1024 
+                    else:
+                        list_of_velocities[i] = 4294967295 - abs(list_of_velocities[i])
+
+        velocities = tuple(list_of_velocities)
 
         # Based on the address jsons from cares_lib
         address = (
@@ -232,10 +239,9 @@ def _bulk_write_protocol_two(
 
     for servo, data in zip(servos, payloads):
         servo_id = servo.motor_id
-
-        data = _decimal_to_hex(data)
-        data = [int(data[2:], 16), int(data[:2], 16)]
-
+        
+        data = [dxl.DXL_LOBYTE(dxl.DXL_LOWORD(data)), dxl.DXL_HIBYTE(dxl.DXL_LOWORD(data)), dxl.DXL_LOBYTE(dxl.DXL_HIWORD(data)), dxl.DXL_HIBYTE(dxl.DXL_HIWORD(data))]
+        
         dxl_addparam_result = group_bulk_write.addParam(
             servo_id, address, address_length, data
         )
