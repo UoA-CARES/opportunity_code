@@ -64,7 +64,7 @@ def init_servo(port, baudrate, max, min, servo_init_info) -> dict[int, Servo]:
         model = model_and_protocol[0]
         protocol = model_and_protocol[1]
         packet_handler = dxl.PacketHandler(protocol)
-
+        
         servos[servo_id] = Servo(
             port_handler,
             packet_handler,
@@ -77,7 +77,7 @@ def init_servo(port, baudrate, max, min, servo_init_info) -> dict[int, Servo]:
             min,
             model
             )
-    
+
     return servos
 
 def _display_servos(servos: dict[int, Servo]):
@@ -109,7 +109,6 @@ def _display_servos(servos: dict[int, Servo]):
 # def decimal_to_hex(decimal):
 #     hex_value = '{:04X}'.format(decimal & ((1 << 16)-1))
 #     return hex_value
-
 
 if __name__ == "__main__":
     main()

@@ -2,6 +2,7 @@ from cares_lib.dynamixel.Servo import Servo
 from cares_lib.dynamixel.Servo import addresses
 import dynamixel_sdk as dxl
 
+
 def set_velocity(servos, velocities):
     """
     Send velocities to the servos
@@ -34,7 +35,7 @@ def set_velocity(servos, velocities):
             for velocity in velocities
         ):
             raise ValueError("Invalid velocity")
-        
+      
         # Convert negative values to CW values
         for i in range(len(velocities)):
                 if velocities[i] < 0:
