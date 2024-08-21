@@ -6,13 +6,13 @@ https://stackoverflow.com/questions/46506850/how-can-i-get-input-from-an-xbox-on
 from inputs import get_gamepad
 import math
 import threading
+import time
 
 class XboxController(object):
-    MAX_TRIG_VAL = math.pow(2, 8)
+    MAX_TRIG_VAL = math.pow(2, 10)
     MAX_JOY_VAL = math.pow(2, 15)
 
     def __init__(self):
-
         self.LeftJoystickY = 0
         self.LeftJoystickX = 0
         self.RightJoystickY = 0
@@ -40,12 +40,12 @@ class XboxController(object):
 
 
     def read(self): # return the buttons/triggers that you care about in this methode
-        x = self.LeftJoystickX
-        y = self.LeftJoystickY
-        a = self.A
-        b = self.X # b=1, x=2
-        rb = self.RightBumper
-        return [x, y, a, b, rb]
+        left_joy_x = self.LeftJoystickX
+        left_joy_y = self.LeftJoystickY
+        right_trigger = self.RightTrigger
+        left_trigger = self.LeftTrigger
+        A_button = self.A
+        return [left_joy_x, left_joy_y, right_trigger, left_trigger, A_button]
 
 
     def _monitor_controller(self):
@@ -92,7 +92,7 @@ class XboxController(object):
                     self.UpDPad = event.state
                 elif event.code == 'BTN_TRIGGER_HAPPY4':
                     self.DownDPad = event.state
-
+                time.sleep(0.01)
 
 
 
