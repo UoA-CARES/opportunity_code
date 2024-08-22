@@ -39,10 +39,10 @@ class Wheels:
         if right_trigger > 0.1:
             val = round(500 * right_trigger/1)
             self.move_forward(val)
-        if left_trigger > 0.1:
+        elif left_trigger > 0.1:
             val = round(500 * left_trigger/1)
             self.move_backward(val)
-        if left_joy_x > 0.5:
+        elif left_joy_x > 0.5:
             self.turn_counter_clockwise(velocity)
-        if left_joy_x < -0.5: 
+        elif left_joy_x < -0.5: 
             self.turn_clockwise(velocity)
