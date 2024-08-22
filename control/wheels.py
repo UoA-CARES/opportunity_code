@@ -50,3 +50,5 @@ class Wheels:
             self.turn_counter_clockwise(self.max_angular_velocity)
         elif left_joy_x < -0.5:
             self.turn_clockwise(self.max_angular_velocity)
+        else:
+            self.stop()
