@@ -1,0 +1,4 @@
+# Required libraries
+inputs==0.5
+dynamixel-sdk==3.7.31
+
