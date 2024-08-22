@@ -5,9 +5,13 @@ from wheels import Wheels
 
 def main():
 
-    standard_servo_velocity = 200
+    max_angular_velocity = 200
+    max_linear_velocity = 500
 
-    wheels = Wheels()
+    wheels = Wheels(
+        max_linear_velocity=max_linear_velocity,
+        max_angular_velocity=max_angular_velocity,
+    )
 
     joy = XboxController()
 
@@ -27,7 +31,7 @@ def main():
         # Sending Commands to Wheels
         if emergency_stop == False:
             wheels.handle_input(
-                right_trigger, left_trigger, left_joy_x, standard_servo_velocity
+                right_trigger, left_trigger, left_joy_x
             )
         else:
             wheels.stop()
