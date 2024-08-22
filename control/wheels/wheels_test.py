@@ -2,12 +2,13 @@ import time
 from xbox_controller import XboxController
 from wheels import Wheels
 
+
 def main():
 
     standard_servo_velocity = 200
 
     wheels = Wheels()
-    
+
     joy = XboxController()
 
     emergency_stop = True
@@ -22,19 +23,12 @@ def main():
         # A button is used for emergency stopping. Can be toggled
         if A_button > 0:
             emergency_stop = not emergency_stop
-        
+
         # Sending Commands to Wheels
         if emergency_stop == False:
-            if right_trigger > 0.1:
-                val = round(500 * right_trigger/1)
-                wheels.move_forward(val)
-            if left_trigger > 0.1:
-                val = round(500 * left_trigger/1)
-                wheels.move_backward(val)
-            if left_joy_x > 0.5:
-                wheels.turn_counter_clockwise(standard_servo_velocity)
-            if left_joy_x < -0.5: 
-                wheels.turn_clockwise(standard_servo_velocity)
+            wheels.handle_input(
+                right_trigger, left_trigger, left_joy_x, standard_servo_velocity
+            )
         else:
             wheels.stop()
 
