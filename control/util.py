@@ -19,7 +19,7 @@ def handle_operating_mode(operating_modes):
     Returns:
         operating_mode: OperatingMode - the operating mode
     """
-
+    # print(f'Operating Modes: {operating_modes}')
     if operating_modes[0] == 1:
         return OperatingMode.DRIVE
     elif operating_modes[1] == 1:

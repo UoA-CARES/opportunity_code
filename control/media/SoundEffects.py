@@ -1,16 +1,11 @@
 import vlc
-
+import time
+import playsound
 
 class SoundEffects:
-    def __init__(self):
-        self.change_mode = vlc.MediaPlayer("control/media/SoundEffects.py")
-        self.drive_mode = vlc.MediaPlayer("file:///path/to/track.mp3")
-        self.robotic_arm_mode = vlc.MediaPlayer("file:///path/to/track.mp3")
-        self.stationary_mode = vlc.MediaPlayer("file:///path/to/track.mp3")
-        self.emergency_stop_mode = vlc.MediaPlayer("file:///path/to/track.mp3")
     
     def play_change_mode(self):
-        self.change_mode.play()
+        playsound.playsound("control/media/change_mode.mp3", False)
 
     def play_drive_mode(self):
         pass
