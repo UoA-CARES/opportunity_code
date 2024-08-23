@@ -1,7 +1,35 @@
 from cares_lib.dynamixel.Servo import Servo
 from cares_lib.dynamixel.Servo import addresses
 import dynamixel_sdk as dxl
+from enum import Enum
 
+class OperatingMode(Enum):
+    DRIVE = 1
+    ROBOTIC_ARM = 2
+    STATIONARY = 3
+    EMERGENCY_STOP = 4
+
+def handle_operating_mode(operating_modes):
+    """
+    Handle the operating modes
+
+    Args:
+        operating_modes: list(int) - list of operating modes
+
+    Returns:
+        operating_mode: OperatingMode - the operating mode
+    """
+
+    if operating_modes[0] == 1:
+        return OperatingMode.DRIVE
+    elif operating_modes[1] == 1:
+        return OperatingMode.ROBOTIC_ARM
+    elif operating_modes[2] == 1:
+        return OperatingMode.STATIONARY
+    elif operating_modes[3] == 1:
+        return OperatingMode.EMERGENCY_STOP
+    else:
+        return None
 
 def set_velocity(servos, velocities):
     """
