@@ -1,8 +1,12 @@
 from util import set_velocity
 from servo_factory import servo_factory
 
+
 class Wheels:
-    def __init__(self):
+    def __init__(self, max_linear_velocity=500, max_angular_velocity=200):
+        
+        self.max_linear_velocity = max_linear_velocity
+        self.max_angular_velocity = max_angular_velocity
 
         self.servos = []
 
@@ -16,7 +20,7 @@ class Wheels:
                     baudrate=1000000,
                     max=4095,
                     min=0,
-                    id = i
+                    id=i,
                 )
             )
 
@@ -34,3 +38,17 @@ class Wheels:
 
     def stop(self):
         set_velocity(self.servos, [0, 0])
+
+    def handle_input(self, right_trigger, left_trigger, left_joy_x):
+        if right_trigger > 0.1:
+            val = round(self.max_linear_velocity * right_trigger)
+            self.move_forward(val)
+        elif left_trigger > 0.1:
+            val = round(self.max_linear_velocity * left_trigger)
+            self.move_backward(val)
+        elif left_joy_x > 0.5:
+            self.turn_counter_clockwise(self.max_angular_velocity)
+        elif left_joy_x < -0.5:
+            self.turn_clockwise(self.max_angular_velocity)
+        else:
+            self.stop()

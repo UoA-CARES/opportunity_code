@@ -39,13 +39,16 @@ class XboxController(object):
         self._monitor_thread.start()
 
 
-    def read(self): # return the buttons/triggers that you care about in this methode
+    def read(self): # return the buttons/triggers that you care about in this method
+
+        # Wheels
         left_joy_x = self.LeftJoystickX
-        left_joy_y = self.LeftJoystickY
         right_trigger = self.RightTrigger
         left_trigger = self.LeftTrigger
+
+        # Emergency Stop
         A_button = self.A
-        return [left_joy_x, left_joy_y, right_trigger, left_trigger, A_button]
+        return [left_joy_x, right_trigger, left_trigger, A_button]
 
 
     def _monitor_controller(self):
