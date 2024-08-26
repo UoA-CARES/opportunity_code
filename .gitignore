@@ -1,1 +1,3 @@
 *__pycache__
+/control/arm_control/
+*.pyc
