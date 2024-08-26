@@ -40,7 +40,7 @@ class Mast:
     def stop_tilting(self):
         set_velocity([self.servos[1]], [0])
     
-    def handle_inputs(self, right_bumper, left_bumper, right_joy_y):
+    def handle_input(self, right_bumper, left_bumper, right_joy_y):
 
         right_joy_y = round(right_joy_y, 1)
 
