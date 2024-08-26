@@ -41,6 +41,9 @@ class Wheels:
         set_velocity(self.servos, [0, 0])
 
     def handle_input(self, right_trigger, left_trigger, left_joy_x):
+
+        left_joy_x = round(left_joy_x, 1)
+        
         if right_trigger > 0.1:
             val = round(self.max_linear_velocity * right_trigger)
             self.move_forward(val)

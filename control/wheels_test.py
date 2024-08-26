@@ -1,7 +1,7 @@
 import time
 from xbox_controller import XboxController
 from wheels import Wheels
-
+from util import handle_operating_mode, OperatingMode
 
 def main():
 
@@ -15,23 +15,16 @@ def main():
 
     joy = XboxController()
 
-    emergency_stop = True
-
     while True:
 
         control_inputs = joy.read()
 
-        left_joy_x, right_trigger, left_trigger, A_button = control_inputs
-        left_joy_x = round(left_joy_x, 1)
-
-        # A button is used for emergency stopping. Can be toggled
-        if A_button > 0:
-            emergency_stop = not emergency_stop
+        operating_mode = handle_operating_mode(control_inputs["operating_mode"])
 
         # Sending Commands to Wheels
-        if emergency_stop == False:
+        if operating_mode == OperatingMode.DRIVE:
             wheels.handle_input(
-                right_trigger, left_trigger, left_joy_x
+                *control_inputs["wheels"]
             )
         else:
             wheels.stop()
