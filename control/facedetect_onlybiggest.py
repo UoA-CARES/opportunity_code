@@ -34,8 +34,7 @@ def center(frame_shape, biggest_face):
 
     move_x = cx-fx
     move_y = cy-fy
-    if cx < 0:
-        
+    return move_x, move_y
 
 
 try:
