@@ -16,7 +16,7 @@ alien_image = cv.imread('/home/sdua078/chen_project/Rover/opportunity_code/contr
 
 def detect_face(frame):
     gray = cv.cvtColor(frame,cv.COLOR_BGR2GRAY)
-    faces = face_cascade.detectMultiScale(gray,1.05,6) ##一个列表，里边每个元素
+    faces = face_cascade.detectMultiScale(gray,1.05,6) 
     return faces
 
 
@@ -24,8 +24,7 @@ def replace_face(frame, face, alien_image):
     #for (x,y,w,h) in faces:
     x,y,w,h = face[0], face[1],face[2],face[3]
     alien_resized = cv.resize(alien_image,(w,h))
-    frame[y:y+h,x:x+w] = alien_resized #!!!!!!!!!!!!!!!!!!返回的xy有可能是box的左下角的xy的值
-    return frame
+    frame[y:y+h,x:x+w] = alien_resized     return frame
 
 def center(frame_shape, biggest_face):
     x,y,w,h = biggest_face[0],biggest_face[1],biggest_face[2],biggest_face[3]
@@ -48,15 +47,13 @@ try:
         faces = detect_face(frame)
         
         if len(faces) > 0:
-            biggest_face = max(faces, key=lambda x: x[2]*x[3]) #x就代表列表的每一组数据，
-            
+            biggest_face = max(faces, key=lambda x: x[2]*x[3])             
             #x,y,w,h = biggest_face
             #cv.rectangle(frame,(x,y),(x+w,y+h),(255,0,0),2)
 
             frame = replace_face(frame,biggest_face,alien_image)
-            #print(frame.shape) #(480,640,3),h*w*c !!!是反过来的，提取frame center的时候别提取错了
-        
-        cv.imshow('ALien',frame) ##target been replaced, show whole frame ，实时显示
+            #print(frame.shape) #(480,640,3),h*w*c         
+        cv.imshow('ALien',frame) ##target been replaced, show whole frame ，
         if cv.waitKey(1) & 0xFF == ord('q'):
             break
 
