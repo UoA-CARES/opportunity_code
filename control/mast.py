@@ -2,10 +2,11 @@ from .util import set_velocity
 from .servo_factory import servo_factory
 
 class Mast:
-    def __init__(self):
-
+    def __init__(self, max_servo_speed):
+        
+        self.servo_speed = max_servo_speed
         self.servos = []
-
+        
         #Servos located at the base of the mast and the head, with ids 3 and 4
         for i in range(3, 5):
             self.servos.append(
@@ -38,4 +39,23 @@ class Mast:
 
     def stop_tilting(self):
         set_velocity([self.servos[1]], [0])
+    
+    def handle_inputs(self, right_bumper, left_bumper, right_joy_y):
+
+        right_joy_y = round(right_joy_y, 1)
+
+        if right_bumper:
+            self.rotate_clockwise(self.servo_speed)
+        elif left_bumper:
+            self.rotate_counterclockwise(self.servo_speed)
+        else:
+            self.stop_rotating()
+
+        if right_joy_y > 0.5:
+            self.tilt_up(self.servo_speed)
+        elif right_joy_y < -0.5:
+            self.tilt_down(self.servo_speed)
+        else:
+            self.stop_tilting()
+
 

@@ -58,7 +58,14 @@ class XboxController(object):
 
         operating_mode_inputs = [Y_button, B_button, A_button, X_button]
 
-        input_dict = {"wheels": wheels_inputs, "operating_mode": operating_mode_inputs}
+        # Mast
+        right_bumper = self.RightBumper
+        left_bumper = self.LeftBumper
+        right_joy_y = self.RightJoystickY
+
+        mast_inputs = [right_bumper, left_bumper, right_joy_y]
+
+        input_dict = {"wheels": wheels_inputs, "operating_mode": operating_mode_inputs, "mast": mast_inputs}
         return input_dict
 
     def _monitor_controller(self):
