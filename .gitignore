@@ -1,3 +1,4 @@
 *__pycache__
 /control/arm_control/
+/confrol/facedetect_onlybiggest.py
 *.pyc
