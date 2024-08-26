@@ -1,5 +1,6 @@
-from util import set_velocity
-from servo_factory import servo_factory
+from .util import set_velocity
+from .servo_factory import servo_factory
+
 
 
 class Wheels:
