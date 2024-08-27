@@ -44,9 +44,9 @@ class Mast:
 
         right_joy_y = round(right_joy_y, 1)
 
-        if right_bumper:
+        if right_bumper == 1:
             self.rotate_clockwise(self.servo_speed)
-        elif left_bumper:
+        elif left_bumper == 1:
             self.rotate_counterclockwise(self.servo_speed)
         else:
             self.stop_rotating()
