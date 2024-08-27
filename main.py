@@ -1,5 +1,5 @@
 import time
-from control import XboxController, OperatingMode, handle_operating_mode, Wheels, SoundEffects
+from control import XboxController, OperatingMode, handle_operating_mode, Wheels, SoundEffects, handle_check_mode, play_check_mode_sound
 import vlc
 
 def main():
@@ -27,6 +27,9 @@ def main():
             operating_mode = new_operating_mode
             sounds_effects.play_change_mode()
         
+        if handle_check_mode(control_inputs["check_mode"]):
+            play_check_mode_sound(operating_mode, sounds_effects)
+
         if operating_mode == OperatingMode.DRIVE:
             # Use Controller to drive the rover and control the mast
             print("DRIVE")

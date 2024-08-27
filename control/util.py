@@ -2,6 +2,7 @@ from cares_lib.dynamixel.Servo import Servo
 from cares_lib.dynamixel.Servo import addresses
 import dynamixel_sdk as dxl
 from enum import Enum
+from media import SoundEffects
 
 class OperatingMode(Enum):
     DRIVE = 1
@@ -30,6 +31,37 @@ def handle_operating_mode(operating_modes):
         return OperatingMode.EMERGENCY_STOP
     else:
         return None
+
+def handle_check_mode(check_mode):
+    """
+    Handle the check mode
+
+    Args:
+        check_mode: list(int) - list of check modes
+
+    Returns:
+        None
+    """
+    return check_mode[0] == 1
+
+def play_check_mode_sound(operating_mode, sound_effects: SoundEffects):
+    """
+    Play the sound for check mode
+
+    Args:
+        sound_effects: SoundEffects - sound effects object
+
+    Returns:
+        None
+    """
+    if operating_mode == OperatingMode.DRIVE:
+        sound_effects.play_drive_mode()
+    elif operating_mode == OperatingMode.ROBOTIC_ARM:
+        sound_effects.play_robotic_arm_mode()
+    elif operating_mode == OperatingMode.STATIONARY:
+        sound_effects.play_stationary_mode()
+    elif operating_mode == OperatingMode.EMERGENCY_STOP:
+        sound_effects.play_emergency_stop_mode()
 
 def set_velocity(servos, velocities):
     """
