@@ -2,7 +2,7 @@ from cares_lib.dynamixel.Servo import Servo
 from cares_lib.dynamixel.Servo import addresses
 import dynamixel_sdk as dxl
 from enum import Enum
-from media import SoundEffects
+from .media import SoundEffects
 
 class OperatingMode(Enum):
     DRIVE = 1

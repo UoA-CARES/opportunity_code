@@ -32,19 +32,19 @@ def main():
 
         if operating_mode == OperatingMode.DRIVE:
             # Use Controller to drive the rover and control the mast
-            print("DRIVE")
+            pass
             # wheels.handle_inputs(control_inputs["wheels"])
         elif operating_mode == OperatingMode.ROBOTIC_ARM:
             # Use Controller to control the robotic arm
-            print("ROBOTIC_ARM")
+            pass
         elif operating_mode == OperatingMode.STATIONARY:
             # Stationary mode
             # Random robotic arm movement
             # Camera track face, alien thing
-            print("STATIONARY")
+            pass
         elif operating_mode == OperatingMode.EMERGENCY_STOP:
             # Send stop commands to all components
-            print("EMERGENCY_STOP")
+            pass
             # wheels.stop()
 
         time.sleep(0.01)
