@@ -1,11 +1,5 @@
 import time
-from control import (
-    XboxController,
-    OperatingMode,
-    handle_operating_mode,
-    Wheels,
-    SoundEffects,
-)
+from control import XboxController, OperatingMode, handle_operating_mode, Wheels, SoundEffects, handle_check_mode, play_check_mode_sound
 import vlc
 import threading
 from threading import Event
@@ -48,12 +42,15 @@ def main():
         if new_operating_mode and operating_mode != new_operating_mode:
             operating_mode = new_operating_mode
             sounds_effects.play_change_mode()
+        
+        if handle_check_mode(control_inputs["check_mode"]):
+            play_check_mode_sound(operating_mode, sounds_effects)
 
         # Kill stationary mode threads if not stationary mode
         if operating_mode != OperatingMode.STATIONARY:
             end_event.set()
             reset_event.clear()
-            
+    
         if operating_mode == OperatingMode.DRIVE:
             # Use Controller to drive the rover and control the mast
             pass
