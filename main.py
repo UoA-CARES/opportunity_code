@@ -52,20 +52,21 @@ def main():
         # Kill stationary mode threads if not stationary mode
         if operating_mode != OperatingMode.STATIONARY:
             end_event.set()
+            reset_event.clear()
             
         if operating_mode == OperatingMode.DRIVE:
             # Use Controller to drive the rover and control the mast
-            print("DRIVE")
+            pass
             # wheels.handle_inputs(control_inputs["wheels"])
         elif operating_mode == OperatingMode.ROBOTIC_ARM:
             # Use Controller to control the robotic arm
-            print("ROBOTIC_ARM")
+            pass
         elif operating_mode == OperatingMode.STATIONARY:
             # Stationary mode
             # Random robotic arm movement
             # Camera track face, alien thing
-            print("STATIONARY")
-            
+            pass
+
             if end_event.is_set():
                 end_event.clear()
                 reset_event.set()
@@ -78,7 +79,7 @@ def main():
 
         elif operating_mode == OperatingMode.EMERGENCY_STOP:
             # Send stop commands to all components
-            print("EMERGENCY_STOP")
+            pass
             # wheels.stop()
 
         time.sleep(0.01)
@@ -86,22 +87,25 @@ def main():
 # Pass in arm object once integrated
 def robotic_arm_stationary_mode(end_event: Event, reset_event: Event):
 
+    i = 0
     while True:
 
         if end_event.is_set():
             reset_event.wait()
 
-        print("Robotic Arm Stationary Mode")
+        print(f"Robotic Arm Stationary Mode {i}")
         time.sleep(1)
 
 # Pass in camera and mast object once integrated
 def camera_tracking_stationary_mode(end_event: Event, reset_event: Event):
 
+    i = 0
     while True:
         if end_event.is_set():
             reset_event.wait()
 
-        print("Camera Tracking Stationary Mode")  
+        print(f"Camera Tracking Stationary Mode {i}")  
+        i += 1
         time.sleep(1)
 
 
