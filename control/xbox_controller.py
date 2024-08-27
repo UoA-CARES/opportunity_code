@@ -38,6 +38,7 @@ class XboxController(object):
         self._monitor_thread = threading.Thread(
             target=self._monitor_controller, args=()
         )
+
         self._monitor_thread.daemon = True
         self._monitor_thread.start()
 
@@ -58,7 +59,12 @@ class XboxController(object):
 
         operating_mode_inputs = [Y_button, B_button, A_button, X_button]
 
-        input_dict = {"wheels": wheels_inputs, "operating_mode": operating_mode_inputs}
+        # Check Mode
+        right_thumb = self.RightThumb
+
+        check_mode = [right_thumb]
+
+        input_dict = {"wheels": wheels_inputs, "operating_mode": operating_mode_inputs, "check_mode": check_mode}
         return input_dict
 
     def _monitor_controller(self):
