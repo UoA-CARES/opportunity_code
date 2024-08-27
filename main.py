@@ -90,19 +90,18 @@ def robotic_arm_stationary_mode(end_event: Event, reset_event: Event):
 
         if end_event.is_set():
             reset_event.wait()
-    
+
         print("Robotic Arm Stationary Mode")
         time.sleep(1)
 
 # Pass in camera and mast object once integrated
 def camera_tracking_stationary_mode(end_event: Event, reset_event: Event):
 
-    while not end_event.is_set():
-        print("Camera Tracking Stationary Mode")
-
+    while True:
         if end_event.is_set():
             reset_event.wait()
 
+        print("Camera Tracking Stationary Mode")  
         time.sleep(1)
 
 
