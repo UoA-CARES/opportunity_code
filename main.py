@@ -62,7 +62,6 @@ def main():
             # Stationary mode
             # Random robotic arm movement
             # Camera track face, alien thing
-            pass
 
             if end_event.is_set():
                 end_event.clear()
