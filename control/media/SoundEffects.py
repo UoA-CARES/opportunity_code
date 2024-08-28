@@ -1,5 +1,3 @@
-import vlc
-import time
 import playsound
 
 class SoundEffects:
