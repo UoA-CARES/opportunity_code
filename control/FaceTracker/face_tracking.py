@@ -144,23 +144,9 @@ class FaceTracker():
 
 if __name__ == '__main__':
     facetracker = FaceTracker(replacement_mode='all')
-
+    
+    # example of how to get the direction for the mast
     while facetracker.is_facetracker(): 
         print(f'move right: {facetracker.get_move_horizontal()}')
         print(f'move up: {facetracker.get_move_vertical()}')
         time.sleep(1)
-
-
-    # try:
-    #     while True:
-    #         frame, biggestFace = facetracker.realtime_track()
-    #         if frame is not None and biggestFace is not None:
-    #             x_move, y_move = facetracker.move_calculate(frame.shape,biggestFace)
-    #             cv.imshow('ALien',frame) 
-    #         elif frame is not None:
-    #             cv.imshow('ALien',frame) 
-    #         if cv.waitKey(1) & 0xFF == ord('q'):
-    #             break
-    #
-    # finally:
-    #     facetracker.release()
