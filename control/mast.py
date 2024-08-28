@@ -2,7 +2,7 @@ from .util import set_velocity
 from .servo_factory import servo_factory
 
 class Mast:
-    def __init__(self, max_servo_speed):
+    def __init__(self, max_servo_speed=20):
         
         self.servo_speed = max_servo_speed
         self.servos = []
@@ -12,7 +12,7 @@ class Mast:
             self.servos.append(
                 servo_factory.create_servo(
                     model="XL430-W250-T",
-                    port="/dev/ttyUSB0",
+                    port="/dev/ttyUSB1",
                     protocol=2,
                     baudrate=1000000,
                     #head servo needs to be limited to a range of motion of 90 degrees

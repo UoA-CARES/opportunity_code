@@ -12,7 +12,7 @@ from control import (
 
 def main():
 
-    max_angular_velocity = 200
+    max_angular_velocity = 20
 
     mast = Mast(max_angular_velocity)
 
