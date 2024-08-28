@@ -53,7 +53,7 @@ def main():
 
         if operating_mode == OperatingMode.DRIVE:
             # Use Controller to drive the rover and control the mast
-            pass
+            mast.handle_input(*control_inputs["mast"])
             # wheels.handle_inputs(control_inputs["wheels"])
         elif operating_mode == OperatingMode.ROBOTIC_ARM:
             # Use Controller to control the robotic arm
@@ -90,13 +90,14 @@ def background_control(mast: Mast, end_event: Event, reset_event: Event):
             mast.stop_tilting()
             reset_event.wait()
 
-        print(f"Robotic Arm Stationary Mode {i}")
+        print(f"Background Thread {i}")
         mast.rotate_clockwise(20)
         time.sleep(1)
         mast.stop_rotating()
         time.sleep(1)
         mast.rotate_counterclockwise(20)
         time.sleep(1)
+        i += 1
 
 
 
