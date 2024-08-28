@@ -11,8 +11,8 @@ class FaceTracker():
         self.config.enable_stream(rs.stream.color,640,480,rs.format.bgr8,30)
         self.pipeline.start(self.config)
         
-        # self.face_cascade = cv.CascadeClassifier(os.path.join(os.getcwd(), 'opencv\\data\\haarcascades\\haarcascade_frontalface_default.xml'))
         self.face_cascade = cv.CascadeClassifier('haarcascade_frontalface_default.xml')
+
         alien_image_path = os.path.join(os.getcwd(),'alien_pictures/dab1.png')
         #alien_image_path = os.path.join(os.getcwd(),'alien_pictures/greensmileface.png')
         #alien_image_path = os.path.join(os.getcwd(),'alien_pictures/purplealien.png')
