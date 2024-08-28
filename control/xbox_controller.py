@@ -8,6 +8,7 @@ import math
 import threading
 import time
 
+
 class XboxController(object):
     MAX_TRIG_VAL = math.pow(2, 10)
     MAX_JOY_VAL = math.pow(2, 15)
@@ -34,69 +35,98 @@ class XboxController(object):
         self.UpDPad = 0
         self.DownDPad = 0
 
-        self._monitor_thread = threading.Thread(target=self._monitor_controller, args=())
+        self._monitor_thread = threading.Thread(
+            target=self._monitor_controller, args=()
+        )
+
         self._monitor_thread.daemon = True
         self._monitor_thread.start()
 
+    def read(self):  # return the buttons/triggers that you care about in this method
 
-    def read(self): # return the buttons/triggers that you care about in this methode
+        # Wheels
         left_joy_x = self.LeftJoystickX
-        left_joy_y = self.LeftJoystickY
         right_trigger = self.RightTrigger
         left_trigger = self.LeftTrigger
-        A_button = self.A
-        return [left_joy_x, left_joy_y, right_trigger, left_trigger, A_button]
 
+        wheels_inputs = [left_joy_x, right_trigger, left_trigger]
+
+        # Operating Mode
+        Y_button = self.Y
+        B_button = self.B
+        A_button = self.A
+        X_button = self.X
+
+        operating_mode_inputs = [Y_button, B_button, A_button, X_button]
+
+        # Check Mode
+        right_thumb = self.RightThumb
+
+        check_mode = [right_thumb]
+
+        input_dict = {"wheels": wheels_inputs, "operating_mode": operating_mode_inputs, "check_mode": check_mode}
+        return input_dict
 
     def _monitor_controller(self):
         while True:
             events = get_gamepad()
             for event in events:
-                if event.code == 'ABS_Y':
-                    self.LeftJoystickY = event.state / XboxController.MAX_JOY_VAL # normalize between -1 and 1
-                elif event.code == 'ABS_X':
-                    self.LeftJoystickX = event.state / XboxController.MAX_JOY_VAL # normalize between -1 and 1
-                elif event.code == 'ABS_RY':
-                    self.RightJoystickY = event.state / XboxController.MAX_JOY_VAL # normalize between -1 and 1
-                elif event.code == 'ABS_RX':
-                    self.RightJoystickX = event.state / XboxController.MAX_JOY_VAL # normalize between -1 and 1
-                elif event.code == 'ABS_Z':
-                    self.LeftTrigger = event.state / XboxController.MAX_TRIG_VAL # normalize between 0 and 1
-                elif event.code == 'ABS_RZ':
-                    self.RightTrigger = event.state / XboxController.MAX_TRIG_VAL # normalize between 0 and 1
-                elif event.code == 'BTN_TL':
+                if event.code == "ABS_Y":
+                    self.LeftJoystickY = (
+                        event.state / XboxController.MAX_JOY_VAL
+                    )  # normalize between -1 and 1
+                elif event.code == "ABS_X":
+                    self.LeftJoystickX = (
+                        event.state / XboxController.MAX_JOY_VAL
+                    )  # normalize between -1 and 1
+                elif event.code == "ABS_RY":
+                    self.RightJoystickY = (
+                        event.state / XboxController.MAX_JOY_VAL
+                    )  # normalize between -1 and 1
+                elif event.code == "ABS_RX":
+                    self.RightJoystickX = (
+                        event.state / XboxController.MAX_JOY_VAL
+                    )  # normalize between -1 and 1
+                elif event.code == "ABS_Z":
+                    self.LeftTrigger = (
+                        event.state / XboxController.MAX_TRIG_VAL
+                    )  # normalize between 0 and 1
+                elif event.code == "ABS_RZ":
+                    self.RightTrigger = (
+                        event.state / XboxController.MAX_TRIG_VAL
+                    )  # normalize between 0 and 1
+                elif event.code == "BTN_TL":
                     self.LeftBumper = event.state
-                elif event.code == 'BTN_TR':
+                elif event.code == "BTN_TR":
                     self.RightBumper = event.state
-                elif event.code == 'BTN_SOUTH':
+                elif event.code == "BTN_SOUTH":
                     self.A = event.state
-                elif event.code == 'BTN_NORTH':
-                    self.Y = event.state #previously switched with X
-                elif event.code == 'BTN_WEST':
-                    self.X = event.state #previously switched with Y
-                elif event.code == 'BTN_EAST':
+                elif event.code == "BTN_NORTH":
+                    self.Y = event.state  # previously switched with X
+                elif event.code == "BTN_WEST":
+                    self.X = event.state  # previously switched with Y
+                elif event.code == "BTN_EAST":
                     self.B = event.state
-                elif event.code == 'BTN_THUMBL':
+                elif event.code == "BTN_THUMBL":
                     self.LeftThumb = event.state
-                elif event.code == 'BTN_THUMBR':
+                elif event.code == "BTN_THUMBR":
                     self.RightThumb = event.state
-                elif event.code == 'BTN_SELECT':
+                elif event.code == "BTN_SELECT":
                     self.Back = event.state
-                elif event.code == 'BTN_START':
+                elif event.code == "BTN_START":
                     self.Start = event.state
-                elif event.code == 'BTN_TRIGGER_HAPPY1':
+                elif event.code == "BTN_TRIGGER_HAPPY1":
                     self.LeftDPad = event.state
-                elif event.code == 'BTN_TRIGGER_HAPPY2':
+                elif event.code == "BTN_TRIGGER_HAPPY2":
                     self.RightDPad = event.state
-                elif event.code == 'BTN_TRIGGER_HAPPY3':
+                elif event.code == "BTN_TRIGGER_HAPPY3":
                     self.UpDPad = event.state
-                elif event.code == 'BTN_TRIGGER_HAPPY4':
+                elif event.code == "BTN_TRIGGER_HAPPY4":
                     self.DownDPad = event.state
                 time.sleep(0.01)
 
 
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     joy = XboxController()
     while True:
         print(joy.read())
