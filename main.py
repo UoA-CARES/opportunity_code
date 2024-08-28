@@ -21,6 +21,7 @@ def main():
 
     operating_mode = OperatingMode.STATIONARY
 
+    # Set up background threads for stationary mode
     end_event = Event()
     reset_event = Event()
 
@@ -39,14 +40,16 @@ def main():
 
         new_operating_mode = handle_operating_mode(control_inputs["operating_mode"])
 
+        # Alert the user if the operating mode has changed
         if new_operating_mode and operating_mode != new_operating_mode:
             operating_mode = new_operating_mode
             sounds_effects.play_change_mode()
         
+        # If user wants to check mode, play the sound effect for the current mode
         if handle_check_mode(control_inputs["check_mode"]):
             play_check_mode_sound(operating_mode, sounds_effects)
 
-        # Kill stationary mode threads if not stationary mode
+        # Pause the stationary background threads if the operating mode is not stationary
         if operating_mode != OperatingMode.STATIONARY:
             end_event.set()
             reset_event.clear()
@@ -63,6 +66,7 @@ def main():
             # Random robotic arm movement
             # Camera track face, alien thing
 
+            # Reset the flags for the stationary mode threads
             if end_event.is_set():
                 end_event.clear()
                 reset_event.set()
