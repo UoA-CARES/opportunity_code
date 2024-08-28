@@ -1,6 +1,5 @@
 import time
 from control import XboxController, OperatingMode, handle_operating_mode, Wheels, SoundEffects, handle_check_mode, play_check_mode_sound
-import vlc
 import threading
 from threading import Event
 

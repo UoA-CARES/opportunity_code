@@ -1,4 +1,3 @@
 # Required libraries
 inputs==0.5
-dynamixel-sdk==3.7.31
-
+playsound=1.3.0
