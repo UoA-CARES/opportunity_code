@@ -11,9 +11,9 @@ class Mast:
         for i in range(3, 5):
             self.servos.append(
                 servo_factory.create_servo(
-                    model="XL430-W250-T",
+                    model="XL430-W250-T" if i==3 else "MX-28",
                     port="/dev/ttyUSB1",
-                    protocol=2,
+                    protocol=2 if i==3 else 1,
                     baudrate=1000000,
                     #head servo needs to be limited to a range of motion of 90 degrees
                     max=4095 if i==3 else 1024,  

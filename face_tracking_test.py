@@ -19,7 +19,12 @@ def main():
     mast = Mast()
     joy = XboxController()
     sounds_effects = SoundEffects()
+    face_tracker = FaceTracker(replacement_mode="one")
 
+    while not face_tracker.is_facetracker():
+        print("Waiting for face tracker to start")
+        time.sleep(1)
+    
     operating_mode = OperatingMode.STATIONARY
 
     # Set up background threads for stationary mode
@@ -27,7 +32,7 @@ def main():
     reset_event = Event()
 
     background_thread = threading.Thread(
-        target=background_control, args=(mast, end_event, reset_event)
+        target=background_control, args=(mast, face_tracker, end_event, reset_event)
     )
 
     while True:
@@ -79,9 +84,8 @@ def main():
         time.sleep(0.01)
 
 
-def background_control(mast: Mast, end_event: Event, reset_event: Event):
+def background_control(mast: Mast, face_tracker: FaceTracker, end_event: Event, reset_event: Event):
 
-    face_tracker = FaceTracker()
     i = 0
     while face_tracker.is_facetracker():
 
@@ -90,20 +94,31 @@ def background_control(mast: Mast, end_event: Event, reset_event: Event):
             mast.stop_tilting()
             reset_event.wait()
 
-        
         x_direction = face_tracker.get_move_horizontal()
         y_direction = face_tracker.get_move_vertical()
 
         if x_direction == 1:
-            mast.rotate_clockwise(20)
+            mast.rotate_counterclockwise(10)
+            print("Rotating counterclockwise")
         elif x_direction == -1:
-            mast.rotate_counterclockwise(20)
+            mast.rotate_clockwise(10)
+            print("Rotating clockwise")
+        else:
+            mast.stop_rotating()
+            print("Stopping rotation")
 
         if y_direction == 1:
-            mast.tilt_up(20)
+            mast.tilt_down(10)
+            print("Tilting down")
         elif y_direction == -1:
-            mast.tilt_down(20)
+            mast.tilt_up(10)
+            print("Tilting up")
+        else:
+            mast.stop_tilting()
+            print("Stopping tilt")
         
+        print("------------")
+         
         time.sleep(0.1)
         i += 1
 
