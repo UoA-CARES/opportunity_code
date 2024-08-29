@@ -26,30 +26,28 @@ class Mast:
         self.MAX_SERVO_POSITIONS = [4095, 1800]
         self.MIN_SERVO_POSITIONS = [0, 1300]
 
-    def is_tilt_within_bounds(self):
-        return (
-            self.MIN_SERVO_POSITIONS[1]
-            <= get_servo_position(self.servos[1])
-            <= self.MAX_SERVO_POSITIONS[1]
-        )
-
-    def is_rotation_within_bounds(self):
-        return (
-            self.MIN_SERVO_POSITIONS[0]
-            <= get_servo_position(self.servos[0])
-            <= self.MAX_SERVO_POSITIONS[0]
-        )
+    def is_tilt_too_cw(self):
+        return get_servo_position(self.servos[1]) <= self.MIN_SERVO_POSITIONS[1]
+    
+    def is_tilt_too_ccw(self):
+        return get_servo_position(self.servos[1]) >= self.MAX_SERVO_POSITIONS[1]
+    
+    def is_rotation_too_cw(self):
+        return get_servo_position(self.servos[0]) <= self.MIN_SERVO_POSITIONS[0]
+    
+    def is_rotation_too_ccw(self):
+        return get_servo_position(self.servos[0]) >= self.MAX_SERVO_POSITIONS[0]
 
     def rotate_clockwise(self, speed):
 
-        if not self.is_rotation_within_bounds():
+        if not self.is_rotation_too_cw():
             return
 
         set_velocity([self.servos[0]], [speed])
 
     def rotate_counterclockwise(self, speed):
 
-        if not self.is_rotation_within_bounds():
+        if not self.is_rotation_too_ccw():
             return
 
         set_velocity([self.servos[0]], [-speed])
@@ -59,14 +57,14 @@ class Mast:
 
     def tilt_up(self, speed):
 
-        if not self.is_tilt_within_bounds():
+        if not self.is_tilt_too_ccw():
             return
 
         set_velocity([self.servos[1]], [speed])
 
     def tilt_down(self, speed):
 
-        if not self.is_tilt_within_bounds():
+        if not self.is_tilt_too_cw():
             return
 
         set_velocity([self.servos[1]], [-speed])
