@@ -5,6 +5,7 @@ from control import (
     handle_operating_mode,
     Wheels,
     Mast,
+    FaceTracker,
     SoundEffects,
     handle_check_mode,
     play_check_mode_sound,
@@ -28,7 +29,6 @@ def main():
     background_thread = threading.Thread(
         target=background_control, args=(mast, end_event, reset_event)
     )
-
 
     while True:
 
@@ -81,21 +81,30 @@ def main():
 
 def background_control(mast: Mast, end_event: Event, reset_event: Event):
 
+    face_tracker = FaceTracker()
     i = 0
-    while True:
+    while face_tracker.is_facetracker():
 
         if end_event.is_set():
             mast.stop_rotating()
             mast.stop_tilting()
             reset_event.wait()
 
-        print(f"Background Thread {i}")
-        mast.rotate_clockwise(20)
-        time.sleep(1)
-        mast.stop_rotating()
-        time.sleep(1)
-        mast.rotate_counterclockwise(20)
-        time.sleep(1)
+        
+        x_direction = face_tracker.get_move_horizontal()
+        y_direction = face_tracker.get_move_vertical()
+
+        if x_direction == 1:
+            mast.rotate_clockwise(20)
+        elif x_direction == -1:
+            mast.rotate_counterclockwise(20)
+
+        if y_direction == 1:
+            mast.tilt_up(20)
+        elif y_direction == -1:
+            mast.tilt_down(20)
+        
+        time.sleep(0.1)
         i += 1
 
 
