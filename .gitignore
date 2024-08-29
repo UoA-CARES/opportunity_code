@@ -1,1 +1,6 @@
 *__pycache__
+/control/arm_control/
+*.pyc
+control/facedetect_onlybiggest.py
+/control/FaceTracker/facetrack_all.py
+/control/FaceTracker/facetrack_biggest.py
