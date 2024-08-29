@@ -4,7 +4,13 @@ from .servo_factory import servo_factory
 
 class Mast:
     def __init__(self, max_servo_speed=20):
+        """
+        Mast class to control the mast of the robot
+        :param max_servo_speed: The maximum speed of the servos
 
+        Clockwise tilt is defined as tilting the top part backward
+        Counterclockwise tilt is defined as tilting the top part forward
+        """
         self.servo_speed = max_servo_speed
         self.servos = []
 
@@ -28,15 +34,21 @@ class Mast:
 
     def is_tilt_too_cw(self):
         return get_servo_position(self.servos[1]) <= self.MIN_SERVO_POSITIONS[1]
-    
+
     def is_tilt_too_ccw(self):
         return get_servo_position(self.servos[1]) >= self.MAX_SERVO_POSITIONS[1]
-    
+
     def is_rotation_too_cw(self):
         return get_servo_position(self.servos[0]) <= self.MIN_SERVO_POSITIONS[0]
-    
+
     def is_rotation_too_ccw(self):
         return get_servo_position(self.servos[0]) >= self.MAX_SERVO_POSITIONS[0]
+
+    def is_tilt_within_bounds(self):
+        return not self.is_tilt_too_cw() and not self.is_tilt_too_ccw()
+
+    def is_rotation_within_bounds(self):
+        return not self.is_rotation_too_cw() and not self.is_rotation_too_ccw()
 
     def rotate_clockwise(self, speed):
 
@@ -57,14 +69,14 @@ class Mast:
 
     def tilt_up(self, speed):
 
-        if not self.is_tilt_too_ccw():
+        if not self.is_tilt_within_bounds() and not self.is_tilt_too_ccw():
             return
 
         set_velocity([self.servos[1]], [speed])
 
     def tilt_down(self, speed):
 
-        if not self.is_tilt_too_cw():
+        if not self.is_tilt_within_bounds() and not self.is_tilt_too_cw():
             return
 
         set_velocity([self.servos[1]], [-speed])
