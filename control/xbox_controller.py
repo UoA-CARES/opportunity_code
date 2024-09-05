@@ -7,7 +7,7 @@ class XboxController(object):
     MAX_TRIG_VAL = 1023  # The maximum value for triggers
     MAX_JOY_VAL = 65535  # The maximum value for joysticks
 
-    def __init__(self, device_path):
+    def __init__(self, device_path='/dev/input/event11'):
         self.device = InputDevice(device_path)
         self.LeftJoystickY = 0
         self.LeftJoystickX = 0
@@ -72,17 +72,25 @@ class XboxController(object):
             if event.type == ecodes.EV_ABS:
                 abs_event = categorize(event)
                 if abs_event.event.code == ecodes.ABS_Y:
-                    self.LeftJoystickY = abs_event.event.value / XboxController.MAX_JOY_VAL  # normalize between -1 and 1
+                    # normalize between -1 and 1
+                    self.LeftJoystickY = (abs_event.event.value - self.MAX_JOY_VAL / 2) / (self.MAX_JOY_VAL / 2)
                 elif abs_event.event.code == ecodes.ABS_X:
-                    self.LeftJoystickX = abs_event.event.value / XboxController.MAX_JOY_VAL  # normalize between -1 and 1
+                    # normalize between -1 and 1
+                    self.LeftJoystickX = (abs_event.event.value - self.MAX_JOY_VAL / 2) / (self.MAX_JOY_VAL / 2)
                 elif abs_event.event.code == ecodes.ABS_RZ:
-                    self.RightJoystickY = abs_event.event.value / XboxController.MAX_JOY_VAL  # normalize between -1 and 1
+                    # normalize between -1 and 1
+                    self.RightJoystickY = (abs_event.event.value - self.MAX_JOY_VAL / 2) / (self.MAX_JOY_VAL / 2) 
                 elif abs_event.event.code == ecodes.ABS_Z:
-                    self.RightJoystickX = abs_event.event.value / XboxController.MAX_JOY_VAL  # normalize between -1 and 1
+                    # normalize between -1 and 1
+                    self.RightJoystickX = (abs_event.event.value - self.MAX_JOY_VAL / 2) / (self.MAX_JOY_VAL / 2)
                 elif abs_event.event.code == ecodes.ABS_BRAKE:
-                    self.LeftTrigger = abs_event.event.value / XboxController.MAX_TRIG_VAL  # normalize between 0 and 1
+                    # normalize between 0 and 1
+                    self.LeftTrigger = abs_event.event.value / XboxController.MAX_TRIG_VAL  
                 elif abs_event.event.code == ecodes.ABS_GAS:
-                    self.RightTrigger = abs_event.event.value / XboxController.MAX_TRIG_VAL  # normalize between 0 and 1
+                    # normalize between 0 and 1
+                    self.RightTrigger = abs_event.event.value / XboxController.MAX_TRIG_VAL  
+                    
+                    
             elif event.type == ecodes.EV_KEY:
                 key_event = categorize(event)
                 if key_event.event.code == ecodes.BTN_TL:

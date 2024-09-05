@@ -4,7 +4,7 @@ from .servo_factory import servo_factory
 
 
 class Wheels:
-    def __init__(self, max_linear_velocity=500, max_angular_velocity=200):
+    def __init__(self, max_linear_velocity=200, max_angular_velocity=200):
         
         self.max_linear_velocity = max_linear_velocity
         self.max_angular_velocity = max_angular_velocity
@@ -37,19 +37,59 @@ class Wheels:
     def turn_counter_clockwise(self, speed):
         set_velocity(self.servos, [-speed, -speed])
 
+    def turn(self, left_speed, right_speed):
+        set_velocity(self.servos, [-left_speed, right_speed])
+
     def stop(self):
         set_velocity(self.servos, [0, 0])
 
-    def handle_input(self, right_trigger, left_trigger, left_joy_x):
-        if right_trigger > 0.1:
+    def handle_input(self, left_joy_x, right_trigger, left_trigger):
+        """
+        Joy values are between 0 and 1
+        Trigger values are between 0 and 1
+
+        left_joy_x: -1 is left, 1 is right
+        right_trigger: 0 is not pressed, 1 is fully pressed
+        left_trigger: 0 is not pressed, 1 is fully pressed
+        """
+
+        # Turn left
+        if left_joy_x < -0.1 and right_trigger > 0.1:
+            self.turn(
+                round(self.max_linear_velocity * right_trigger),
+                round(self.max_linear_velocity * right_trigger * (1 + left_joy_x)),
+            )
+        
+        # Turn right
+        elif left_joy_x > 0.1 and right_trigger > 0.1:
+            self.turn(
+                round(self.max_linear_velocity * right_trigger * (1 - left_joy_x)),
+                round(self.max_linear_velocity * right_trigger),
+            )
+        
+        # Backward left
+        elif left_joy_x < -0.1 and left_trigger > 0.1:
+            self.turn(
+                round(-self.max_linear_velocity * left_trigger),
+                round(-self.max_linear_velocity * left_trigger * (1 + left_joy_x)),
+            )
+
+        # Backward right
+        elif left_joy_x > 0.1 and left_trigger > 0.1:
+            self.turn(
+                round(-self.max_linear_velocity * left_trigger * (1 - left_joy_x)),
+                round(-self.max_linear_velocity * left_trigger),
+            )
+
+        elif right_trigger > 0.1:
             val = round(self.max_linear_velocity * right_trigger)
             self.move_forward(val)
         elif left_trigger > 0.1:
             val = round(self.max_linear_velocity * left_trigger)
             self.move_backward(val)
         elif left_joy_x > 0.5:
-            self.turn_counter_clockwise(self.max_angular_velocity)
-        elif left_joy_x < -0.5:
             self.turn_clockwise(self.max_angular_velocity)
+        elif left_joy_x < -0.5:
+            self.turn_counter_clockwise(self.max_angular_velocity)
         else:
             self.stop()
