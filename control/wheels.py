@@ -56,15 +56,15 @@ class Wheels:
         # Turn left
         if left_joy_x < -0.1 and right_trigger > 0.1:
             self.turn(
-                self.max_linear_velocity * right_trigger * (1 + left_joy_x),
                 self.max_linear_velocity * right_trigger,
+                self.max_linear_velocity * right_trigger * (1 + left_joy_x),
             )
         
         # Turn right
         elif left_joy_x > 0.1 and right_trigger > 0.1:
             self.turn(
-                self.max_linear_velocity * right_trigger,
                 self.max_linear_velocity * right_trigger * (1 - left_joy_x),
+                self.max_linear_velocity * right_trigger,
             )
         elif right_trigger > 0.1:
             val = round(self.max_linear_velocity * right_trigger)
@@ -73,8 +73,8 @@ class Wheels:
             val = round(self.max_linear_velocity * left_trigger)
             self.move_backward(val)
         elif left_joy_x > 0.5:
-            self.turn_counter_clockwise(self.max_angular_velocity)
-        elif left_joy_x < -0.5:
             self.turn_clockwise(self.max_angular_velocity)
+        elif left_joy_x < -0.5:
+            self.turn_counter_clockwise(self.max_angular_velocity)
         else:
             self.stop()
