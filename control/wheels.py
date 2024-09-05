@@ -4,7 +4,7 @@ from .servo_factory import servo_factory
 
 
 class Wheels:
-    def __init__(self, max_linear_velocity=500, max_angular_velocity=200):
+    def __init__(self, max_linear_velocity=200, max_angular_velocity=200):
         
         self.max_linear_velocity = max_linear_velocity
         self.max_angular_velocity = max_angular_velocity
@@ -56,29 +56,29 @@ class Wheels:
         # Turn left
         if left_joy_x < -0.1 and right_trigger > 0.1:
             self.turn(
-                self.max_linear_velocity * right_trigger,
-                self.max_linear_velocity * right_trigger * (1 + left_joy_x),
+                round(self.max_linear_velocity * right_trigger),
+                round(self.max_linear_velocity * right_trigger * (1 + left_joy_x)),
             )
         
         # Turn right
         elif left_joy_x > 0.1 and right_trigger > 0.1:
             self.turn(
-                self.max_linear_velocity * right_trigger * (1 - left_joy_x),
-                self.max_linear_velocity * right_trigger,
+                round(self.max_linear_velocity * right_trigger * (1 - left_joy_x)),
+                round(self.max_linear_velocity * right_trigger),
             )
         
         # Backward left
         elif left_joy_x < -0.1 and left_trigger > 0.1:
             self.turn(
-                -self.max_linear_velocity * left_trigger,
-                -self.max_linear_velocity * left_trigger * (1 + left_joy_x),
+                round(-self.max_linear_velocity * left_trigger),
+                round(-self.max_linear_velocity * left_trigger * (1 + left_joy_x)),
             )
 
         # Backward right
         elif left_joy_x > 0.1 and left_trigger > 0.1:
             self.turn(
-                -self.max_linear_velocity * left_trigger * (1 - left_joy_x),
-                -self.max_linear_velocity * left_trigger,
+                round(-self.max_linear_velocity * left_trigger * (1 - left_joy_x)),
+                round(-self.max_linear_velocity * left_trigger),
             )
 
         elif right_trigger > 0.1:
