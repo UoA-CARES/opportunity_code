@@ -63,6 +63,24 @@ def play_check_mode_sound(operating_mode, sound_effects: SoundEffects):
     elif operating_mode == OperatingMode.EMERGENCY_STOP:
         sound_effects.play_emergency_stop_mode()
 
+def get_servo_position(servo):
+    """
+    Get the positions of the servos
+
+    Args:
+        servos: list(Servo) - list of servos to get positions from
+    """
+    return servo.current_position()
+
+def get_servo_positions(servos):
+    """
+    Get the positions of the servos
+
+    Args:
+        servos: list(Servo) - list of servos to get positions from
+    """
+    return [servo.current_position() for servo in servos]
+
 def set_velocity(servos, velocities):
     """
     Send velocities to the servos
