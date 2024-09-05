@@ -5,7 +5,7 @@ import math
 
 class XboxController(object):
     MAX_TRIG_VAL = 1023  # The maximum value for triggers
-    MAX_JOY_VAL = 32767  # The maximum value for joysticks
+    MAX_JOY_VAL = 65535  # The maximum value for joysticks
 
     def __init__(self, device_path):
         self.device = InputDevice(device_path)
@@ -75,13 +75,13 @@ class XboxController(object):
                     self.LeftJoystickY = abs_event.event.value / XboxController.MAX_JOY_VAL  # normalize between -1 and 1
                 elif abs_event.event.code == ecodes.ABS_X:
                     self.LeftJoystickX = abs_event.event.value / XboxController.MAX_JOY_VAL  # normalize between -1 and 1
-                elif abs_event.event.code == ecodes.ABS_RY:
-                    self.RightJoystickY = abs_event.event.value / XboxController.MAX_JOY_VAL  # normalize between -1 and 1
-                elif abs_event.event.code == ecodes.ABS_RX:
-                    self.RightJoystickX = abs_event.event.value / XboxController.MAX_JOY_VAL  # normalize between -1 and 1
-                elif abs_event.event.code == ecodes.ABS_Z:
-                    self.LeftTrigger = abs_event.event.value / XboxController.MAX_TRIG_VAL  # normalize between 0 and 1
                 elif abs_event.event.code == ecodes.ABS_RZ:
+                    self.RightJoystickY = abs_event.event.value / XboxController.MAX_JOY_VAL  # normalize between -1 and 1
+                elif abs_event.event.code == ecodes.ABS_Z:
+                    self.RightJoystickX = abs_event.event.value / XboxController.MAX_JOY_VAL  # normalize between -1 and 1
+                elif abs_event.event.code == ecodes.ABS_BRAKE:
+                    self.LeftTrigger = abs_event.event.value / XboxController.MAX_TRIG_VAL  # normalize between 0 and 1
+                elif abs_event.event.code == ecodes.ABS_GAS:
                     self.RightTrigger = abs_event.event.value / XboxController.MAX_TRIG_VAL  # normalize between 0 and 1
             elif event.type == ecodes.EV_KEY:
                 key_event = categorize(event)
