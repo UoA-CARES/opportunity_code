@@ -37,11 +37,36 @@ class Wheels:
     def turn_counter_clockwise(self, speed):
         set_velocity(self.servos, [-speed, -speed])
 
+    def turn(self, left_speed, right_speed):
+        set_velocity(self.servos, [-left_speed, right_speed])
+
     def stop(self):
         set_velocity(self.servos, [0, 0])
 
-    def handle_input(self, right_trigger, left_trigger, left_joy_x):
-        if right_trigger > 0.1:
+    def handle_input(self, left_joy_x, right_trigger, left_trigger):
+        """
+        Joy values are between 0 and 1
+        Trigger values are between 0 and 1
+
+        left_joy_x: -1 is left, 1 is right
+        right_trigger: 0 is not pressed, 1 is fully pressed
+        left_trigger: 0 is not pressed, 1 is fully pressed
+        """
+
+        # Turn left
+        if left_joy_x < -0.1 and right_trigger > 0.1:
+            self.turn(
+                self.max_linear_velocity * right_trigger * (1 + left_joy_x),
+                self.max_linear_velocity * right_trigger,
+            )
+        
+        # Turn right
+        elif left_joy_x > 0.1 and right_trigger > 0.1:
+            self.turn(
+                self.max_linear_velocity * right_trigger,
+                self.max_linear_velocity * right_trigger * (1 - left_joy_x),
+            )
+        elif right_trigger > 0.1:
             val = round(self.max_linear_velocity * right_trigger)
             self.move_forward(val)
         elif left_trigger > 0.1:
