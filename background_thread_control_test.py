@@ -29,6 +29,7 @@ def main():
         target=background_control, args=(mast, end_event, reset_event)
     )
 
+    background_thread.start()
 
     while True:
 
@@ -66,9 +67,6 @@ def main():
             if end_event.is_set():
                 end_event.clear()
                 reset_event.set()
-
-            if not background_thread.is_alive():
-                background_thread.start()
 
 
         elif operating_mode == OperatingMode.EMERGENCY_STOP:

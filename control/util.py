@@ -339,19 +339,3 @@ def _bulk_write_protocol_two(
 def _decimal_to_hex(decimal):
     hex_value = "{:04X}".format(decimal & ((1 << 16) - 1))
     return hex_value
-
-def _forward_velocity(velocity):
-    val = [-velocity, velocity]    
-    return val 
-
-def _backward_velocity(velocity):
-    val = [velocity, -velocity]    
-    return val 
-
-def _left_velocity(velocity):
-    val = [velocity, velocity]    
-    return val 
-
-def _right_velocity(velocity):
-    val = [-velocity, -velocity]    
-    return val 
