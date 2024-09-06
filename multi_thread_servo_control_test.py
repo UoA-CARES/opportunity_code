@@ -3,9 +3,7 @@ from control import (
     XboxController,
     OperatingMode,
     handle_operating_mode,
-    Wheels,
     Mast,
-    FaceTracker,
     SoundEffects,
     handle_check_mode,
     play_check_mode_sound,
@@ -17,21 +15,26 @@ from threading import Event
 def main():
 
     mast = Mast()
+
     joy = XboxController()
     sounds_effects = SoundEffects()
-    face_tracker = FaceTracker(replacement_mode="one")
-    
+
     operating_mode = OperatingMode.STATIONARY
 
     # Set up background threads for stationary mode
     end_event = Event()
     reset_event = Event()
 
-    background_thread = threading.Thread(
-        target=background_control, args=(mast, face_tracker, end_event, reset_event)
+    thread_one = threading.Thread(
+        target=thread_one_control, args=(mast, end_event, reset_event)
     )
 
-    background_thread.start()
+    thread_two = threading.Thread(
+        target=thread_two_control, args=(mast, end_event, reset_event)
+    )
+
+    thread_one.start()
+    thread_two.start()
 
     while True:
 
@@ -55,7 +58,7 @@ def main():
 
         if operating_mode == OperatingMode.DRIVE:
             # Use Controller to drive the rover and control the mast
-            mast.handle_input(*control_inputs["mast"])
+            pass
             # wheels.handle_inputs(control_inputs["wheels"])
         elif operating_mode == OperatingMode.ROBOTIC_ARM:
             # Use Controller to control the robotic arm
@@ -78,44 +81,32 @@ def main():
         time.sleep(0.01)
 
 
-def background_control(mast: Mast, face_tracker: FaceTracker, end_event: Event, reset_event: Event):
+def thread_one_control(mast: Mast, end_event: Event, reset_event: Event):
 
     i = 0
-    while face_tracker.is_facetracker():
+    while True:
 
         if end_event.is_set():
-            mast.stop_rotating()
-            mast.stop_tilting()
             reset_event.wait()
 
-        x_direction = face_tracker.get_move_horizontal()
-        y_direction = face_tracker.get_move_vertical()
-
-        if x_direction == 1:
-            mast.rotate_clockwise(20)
-            print("Rotating counterclockwise")
-        elif x_direction == -1:
-            mast.rotate_counterclockwise(20)
-            print("Rotating clockwise")
-        else:
-            mast.stop_rotating()
-            print("Stopping rotation")
-
-        if y_direction == 1:
-            mast.tilt_down(10)
-            print("Tilting down")
-        elif y_direction == -1:
-            mast.tilt_up(10)
-            print("Tilting up")
-        else:
-            mast.stop_tilting()
-            print("Stopping tilt")
-        
-        print("------------")
-         
-        time.sleep(0.1)
+        time.sleep(1)
+        print(f"Thread one speaking {i}")
+        mast.rotate_counterclockwise(50)
         i += 1
 
+
+
+def thread_two_control(mast: Mast, end_event: Event, reset_event: Event):
+
+    i = 0
+    while True:
+        if end_event.is_set():
+            reset_event.wait()
+
+        mast.rotate_clockwise(50)
+        print(f"Thread two speaking {i}")
+        time.sleep(1)
+        i += 1
 
 
 if __name__ == "__main__":
