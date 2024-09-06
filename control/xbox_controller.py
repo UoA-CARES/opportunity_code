@@ -1,19 +1,14 @@
-"""
-Code Source:
-https://stackoverflow.com/questions/46506850/how-can-i-get-input-from-an-xbox-one-controller-in-python
-"""
-
-from inputs import get_gamepad
-import math
+from evdev import InputDevice, categorize, ecodes
 import threading
 import time
-
+import math
 
 class XboxController(object):
-    MAX_TRIG_VAL = math.pow(2, 10)
-    MAX_JOY_VAL = math.pow(2, 15)
+    MAX_TRIG_VAL = 1023  # The maximum value for triggers
+    MAX_JOY_VAL = 65535  # The maximum value for joysticks
 
-    def __init__(self):
+    def __init__(self, device_path='/dev/input/event11'):
+        self.device = InputDevice(device_path)
         self.LeftJoystickY = 0
         self.LeftJoystickX = 0
         self.RightJoystickY = 0
@@ -38,12 +33,10 @@ class XboxController(object):
         self._monitor_thread = threading.Thread(
             target=self._monitor_controller, args=()
         )
-
         self._monitor_thread.daemon = True
         self._monitor_thread.start()
 
     def read(self):  # return the buttons/triggers that you care about in this method
-
         # Wheels
         left_joy_x = self.LeftJoystickX
         right_trigger = self.RightTrigger
@@ -75,65 +68,64 @@ class XboxController(object):
         return input_dict
 
     def _monitor_controller(self):
-        while True:
-            events = get_gamepad()
-            for event in events:
-                if event.code == "ABS_Y":
-                    self.LeftJoystickY = (
-                        event.state / XboxController.MAX_JOY_VAL
-                    )  # normalize between -1 and 1
-                elif event.code == "ABS_X":
-                    self.LeftJoystickX = (
-                        event.state / XboxController.MAX_JOY_VAL
-                    )  # normalize between -1 and 1
-                elif event.code == "ABS_RY":
-                    self.RightJoystickY = (
-                        event.state / XboxController.MAX_JOY_VAL
-                    )  # normalize between -1 and 1
-                elif event.code == "ABS_RX":
-                    self.RightJoystickX = (
-                        event.state / XboxController.MAX_JOY_VAL
-                    )  # normalize between -1 and 1
-                elif event.code == "ABS_Z":
-                    self.LeftTrigger = (
-                        event.state / XboxController.MAX_TRIG_VAL
-                    )  # normalize between 0 and 1
-                elif event.code == "ABS_RZ":
-                    self.RightTrigger = (
-                        event.state / XboxController.MAX_TRIG_VAL
-                    )  # normalize between 0 and 1
-                elif event.code == "BTN_TL":
-                    self.LeftBumper = event.state
-                elif event.code == "BTN_TR":
-                    self.RightBumper = event.state
-                elif event.code == "BTN_SOUTH":
-                    self.A = event.state
-                elif event.code == "BTN_NORTH":
-                    self.Y = event.state  # previously switched with X
-                elif event.code == "BTN_WEST":
-                    self.X = event.state  # previously switched with Y
-                elif event.code == "BTN_EAST":
-                    self.B = event.state
-                elif event.code == "BTN_THUMBL":
-                    self.LeftThumb = event.state
-                elif event.code == "BTN_THUMBR":
-                    self.RightThumb = event.state
-                elif event.code == "BTN_SELECT":
-                    self.Back = event.state
-                elif event.code == "BTN_START":
-                    self.Start = event.state
-                elif event.code == "BTN_TRIGGER_HAPPY1":
-                    self.LeftDPad = event.state
-                elif event.code == "BTN_TRIGGER_HAPPY2":
-                    self.RightDPad = event.state
-                elif event.code == "BTN_TRIGGER_HAPPY3":
-                    self.UpDPad = event.state
-                elif event.code == "BTN_TRIGGER_HAPPY4":
-                    self.DownDPad = event.state
-                time.sleep(0.01)
-
+        for event in self.device.read_loop():
+            if event.type == ecodes.EV_ABS:
+                abs_event = categorize(event)
+                if abs_event.event.code == ecodes.ABS_Y:
+                    # normalize between -1 and 1
+                    self.LeftJoystickY = (abs_event.event.value - self.MAX_JOY_VAL / 2) / (self.MAX_JOY_VAL / 2)
+                elif abs_event.event.code == ecodes.ABS_X:
+                    # normalize between -1 and 1
+                    self.LeftJoystickX = (abs_event.event.value - self.MAX_JOY_VAL / 2) / (self.MAX_JOY_VAL / 2)
+                elif abs_event.event.code == ecodes.ABS_RZ:
+                    # normalize between -1 and 1
+                    self.RightJoystickY = (abs_event.event.value - self.MAX_JOY_VAL / 2) / (self.MAX_JOY_VAL / 2) 
+                elif abs_event.event.code == ecodes.ABS_Z:
+                    # normalize between -1 and 1
+                    self.RightJoystickX = (abs_event.event.value - self.MAX_JOY_VAL / 2) / (self.MAX_JOY_VAL / 2)
+                elif abs_event.event.code == ecodes.ABS_BRAKE:
+                    # normalize between 0 and 1
+                    self.LeftTrigger = abs_event.event.value / XboxController.MAX_TRIG_VAL  
+                elif abs_event.event.code == ecodes.ABS_GAS:
+                    # normalize between 0 and 1
+                    self.RightTrigger = abs_event.event.value / XboxController.MAX_TRIG_VAL  
+                    
+                    
+            elif event.type == ecodes.EV_KEY:
+                key_event = categorize(event)
+                if key_event.event.code == ecodes.BTN_TL:
+                    self.LeftBumper = key_event.event.value
+                elif key_event.event.code == ecodes.BTN_TR:
+                    self.RightBumper = key_event.event.value
+                elif key_event.event.code == ecodes.BTN_SOUTH:
+                    self.A = key_event.event.value
+                elif key_event.event.code == ecodes.BTN_NORTH:
+                    self.Y = key_event.event.value
+                elif key_event.event.code == ecodes.BTN_WEST:
+                    self.X = key_event.event.value
+                elif key_event.event.code == ecodes.BTN_EAST:
+                    self.B = key_event.event.value
+                elif key_event.event.code == ecodes.BTN_THUMBL:
+                    self.LeftThumb = key_event.event.value
+                elif key_event.event.code == ecodes.BTN_THUMBR:
+                    self.RightThumb = key_event.event.value
+                elif key_event.event.code == ecodes.BTN_SELECT:
+                    self.Back = key_event.event.value
+                elif key_event.event.code == ecodes.BTN_START:
+                    self.Start = key_event.event.value
+                elif key_event.event.code == ecodes.BTN_TRIGGER_HAPPY1:
+                    self.LeftDPad = key_event.event.value
+                elif key_event.event.code == ecodes.BTN_TRIGGER_HAPPY2:
+                    self.RightDPad = key_event.event.value
+                elif key_event.event.code == ecodes.BTN_TRIGGER_HAPPY3:
+                    self.UpDPad = key_event.event.value
+                elif key_event.event.code == ecodes.BTN_TRIGGER_HAPPY4:
+                    self.DownDPad = key_event.event.value
+            time.sleep(0.01)
 
 if __name__ == "__main__":
-    joy = XboxController()
+    # Replace '/dev/input/eventX' with the actual device path for your Xbox controller
+    device_path = '/dev/input/event11'
+    joy = XboxController(device_path)
     while True:
         print(joy.read())

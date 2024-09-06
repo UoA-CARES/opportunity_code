@@ -13,7 +13,7 @@ from control import (
 def main():
 
     max_angular_velocity = 200
-    max_linear_velocity = 500
+    max_linear_velocity = 200
 
     wheels = Wheels(
         max_linear_velocity=max_linear_velocity,
