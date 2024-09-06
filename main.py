@@ -32,6 +32,8 @@ def main():
         target=camera_tracking_stationary_mode, args=(end_event, reset_event)
     )
 
+    arm_stationary_mode_thread.start()
+    camera_tracking_stationary_mode_thread.start()
 
     while True:
 
@@ -69,12 +71,6 @@ def main():
             if end_event.is_set():
                 end_event.clear()
                 reset_event.set()
-
-            if not arm_stationary_mode_thread.is_alive():
-                arm_stationary_mode_thread.start()
-
-            if not camera_tracking_stationary_mode_thread.is_alive():
-                camera_tracking_stationary_mode_thread.start()
 
         elif operating_mode == OperatingMode.EMERGENCY_STOP:
             # Send stop commands to all components
