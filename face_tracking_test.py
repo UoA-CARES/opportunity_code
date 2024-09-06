@@ -20,10 +20,6 @@ def main():
     joy = XboxController()
     sounds_effects = SoundEffects()
     face_tracker = FaceTracker(replacement_mode="one")
-
-    while not face_tracker.is_facetracker():
-        print("Waiting for face tracker to start")
-        time.sleep(1)
     
     operating_mode = OperatingMode.STATIONARY
 
@@ -34,6 +30,8 @@ def main():
     background_thread = threading.Thread(
         target=background_control, args=(mast, face_tracker, end_event, reset_event)
     )
+
+    background_thread.start()
 
     while True:
 
@@ -71,10 +69,6 @@ def main():
             if end_event.is_set():
                 end_event.clear()
                 reset_event.set()
-
-            if not background_thread.is_alive():
-                background_thread.start()
-
 
         elif operating_mode == OperatingMode.EMERGENCY_STOP:
             # Send stop commands to all components
