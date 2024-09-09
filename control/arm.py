@@ -2,7 +2,8 @@ from util import set_position
 from servo_factory import servo_factory
 
 import numpy as np
-import time
+
+
 class Arm:
     # define arm parameteres
     L2, L3 = 380, 368 # TODO: update this
@@ -99,3 +100,19 @@ class Arm:
         return np.arccos((l1**2 + l2**2 - opposite_l**2)/(2*l1*l2))
 
 
+    def handle_input(self, key_1, key_2, key_3):
+        if key_1: 
+
+            pass
+        else:
+            pass
+        
+        if key_2: 
+            pass
+        else:
+            pass
+        
+        if key_3: 
+            pass
+        else:
+            pass
