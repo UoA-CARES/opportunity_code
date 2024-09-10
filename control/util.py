@@ -323,7 +323,7 @@ def _bulk_write_protocol_two(
         dxl_addparam_result = group_bulk_write.addParam(
             servo_id, address, address_length, data
         )
-
+        print(servo_id, address, address_length, data)
         if not dxl_addparam_result:
             print(f"Failed to add parameter for Dynamixel ID {servo_id}")
             quit()
