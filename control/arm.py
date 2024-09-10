@@ -1,6 +1,7 @@
 from util import set_position
 from servo_factory import servo_factory
 import numpy as np
+import time
 # from cares_lib.dyanmixel.Servo improt Servo
 
 class Arm:
@@ -15,7 +16,7 @@ class Arm:
         self.ids = [5, 7, 8]
         # models =["MX-106", "MX-64", "MX-64", "XL430-W250-T"]
         # models =["MX-28", "MX-106", "MX-64", "XL430-W250-T"]
-        self.models =["MX-28", "MX-64", "XL430-W250-T"]
+        self.models =["MX-28Protocol2", "MX-64Protocol2", "XL430-W250-T"]
         #Going toward the end of the arm, servos have ids 5-8
         for i in range(3):
             self.servos.append(
@@ -32,6 +33,7 @@ class Arm:
             )
 
 
+    '''
     # simplified inverse kinematics for 3 DOF arm (rough approximation of the real arm)
     def simplified_inverse_kinematics(self, position: list[int]) -> list[int]:
 
@@ -55,9 +57,10 @@ class Arm:
         # theta1: z-axis (pointing up), 0 degrees is along x-axis (pointing forward)
         # theta2: y-axis (pointing left), 0 degrees is along x-axis (pointing forward)
         # theta3: y-axis (pointing left), 0 degrees is along x-axis (pointing forward)
-        return [theta1, theta2, theta3]
+        return [theta1, theta2, theta3] 
+    '''
 
-
+    '''
     def move_arm(self, position: list[int]):
         
         gear_ratio = 32 / 24
@@ -74,53 +77,53 @@ class Arm:
         
         # move servo
         set_position(self.servos, [int(theta[0]), int(theta[1]), int(theta[2])])
+
+        '''
     
-
-    def move_arm_joints(self, joint_id: int=0, joint_angle: int=0, time: int=2000):
+    def move_arm_joints(self, joint_id: int=0, joint_angle: int=0, time: int=2000, camera_horiz=False):
         
-
-
-        # 120 
-        self.set_profile_time(0, time)
-        self.set_profile_time(1, time)
-        self.set_profile_time(2, time)
+        self.set_profile_time(joints=[0, 1, 2], time=time)
 
         if joint_id == 0: 
             gear_ratio = 32 / 24
             joint_angle = (-joint_angle + 180) # 0 degrees when the servos are at 180 deg
-            joint_angle = int((joint_angle*gear_ratio) * 4095 / 360) # add the effect of the gear ratio
+            joint_angle = int((joint_angle) * 4095 / 360) # add the effect of the gear ratio
             set_position(self.servos[0], [joint_angle])
         
         # if self.servos.model[joint_id] == 'MX-64': 
         if joint_id == 1: 
             
             joint_angle_offset = (-joint_angle + 120) # 0 degrees when the servos are at 180 deg
-            ARM_MIN = 120
-            ARM_MAX = 160
+            ARM_MIN = 90 # 120 - 90 = 30 deg
+            ARM_MAX = 165 # 120 - 165 = - 45 deg
 
-            if joint_angle_offset <= ARM_MIN: 
+            if joint_angle_offset < ARM_MIN: 
                 joint_angle_offset = ARM_MIN
-            elif joint_angle_offset >= ARM_MAX: 
+            elif joint_angle_offset > ARM_MAX: 
                 joint_angle_offset = ARM_MAX
             else: 
                 pass
             
-            self.set_profile_time(joint_id, time)
+            self.set_profile_time([joint_id], time)
             joint_angle_offset  = int((joint_angle_offset) * 4095 / 360) # add the effect of the gear ratio
-            set_position(self.servos[1], [joint_angle_offset])
-
-            joint_angle_camera = -(joint_angle) + 180
-            joint_angle_camera = int((joint_angle_camera) * 4095 / 360) # no offset
-            set_position(self.servos[2], [joint_angle_camera])
+            set_position([self.servos[1]], [joint_angle_offset])
+            
+            # keep the camera flat
+            if camera_horiz == True:
+                joint_angle_camera = -(joint_angle) + 180
+                joint_angle_camera = int((joint_angle_camera) * 4095 / 360) # no offset
+                set_position([self.servos[2]], [joint_angle_camera])
 
         else: 
             return
     
-    def set_profile_time(self, joint, time):
+    def set_profile_time(self, joints: list[int], time):
         VEL_PROFILE_ADDR = 112
-        port_handler = self.servos[joint].port_handler
-        packet_handler = self.servos[joint].packet_handler
-        packet_handler.write4ByteTxRx(port_handler, self.ids[joint], VEL_PROFILE_ADDR, time)
+
+        for joint in joints:
+            port_handler = self.servos[joint].port_handler
+            packet_handler = self.servos[joint].packet_handler
+            packet_handler.write4ByteTxRx(port_handler, self.ids[joint], VEL_PROFILE_ADDR, time)
 
     @staticmethod
     def _cosines_law(l1, l2, opposite_l):
@@ -149,12 +152,13 @@ class Arm:
 
 
 arm = Arm()
-arm.set_profile_time(joint=1, time=4000)
-# arm.move_arm_joints(joint_id=1, joint_angle=0, time=4000)
+# arm.set_profile_time(joint=1, time=4000)
+arm.move_arm_joints(joint_id=1, joint_angle=-25, time=4000)
 
 # arm.move_arm_joints(joint_id=1, joint_angle=0, time=2000)
 
 # arm.move_arm_joints(joint_id=2, joint_angle=0, time=2000)
+
 
 
 
