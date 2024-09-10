@@ -27,7 +27,7 @@ class Arm:
                     baudrate=1000000,
                     max=4095, #need to figure out range of motion, for now 45 degrees
                     min=0,
-                    id = ids[i],
+                    id = self.ids[i],
                 )
             )
 
@@ -98,16 +98,15 @@ class Arm:
             ARM_MIN = 120
             ARM_MAX = 160
 
-            if joint_angle_offset < ARM_MIN: 
+            if joint_angle_offset <= ARM_MIN: 
                 joint_angle_offset = ARM_MIN
-            elif joint_angle_offset > ARM_MAX: 
+            elif joint_angle_offset >= ARM_MAX: 
                 joint_angle_offset = ARM_MAX
             else: 
                 pass
             
             self.set_profile_time(joint_id, time)
-            gear_ratio = 32 / 24
-            joint_angle_offset  = int((joint_angle_offset*gear_ratio) * 4095 / 360) # add the effect of the gear ratio
+            joint_angle_offset  = int((joint_angle_offset) * 4095 / 360) # add the effect of the gear ratio
             set_position(self.servos[1], [joint_angle_offset])
 
             joint_angle_camera = -(joint_angle) + 180
