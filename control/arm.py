@@ -12,7 +12,7 @@ class Arm:
         self.servos = []
 
         # ids = [5, 6, 7, 8]
-        ids = [5, 7, 8]
+        self.ids = [5, 7, 8]
         # models =["MX-106", "MX-64", "MX-64", "XL430-W250-T"]
         # models =["MX-28", "MX-106", "MX-64", "XL430-W250-T"]
         self.models =["MX-28", "MX-64", "XL430-W250-T"]
@@ -117,11 +117,11 @@ class Arm:
         else: 
             return
     
-    def set_profile_time(self, id, time):
+    def set_profile_time(self, joint, time):
         VEL_PROFILE_ADDR = 112
-        port_handler = self.servos[id].port_handler
-        packet_handler = self.servos[id].packet_hander
-        packet_handler.write4ByteTxRx(port_handler, id, VEL_PROFILE_ADDR, time)
+        port_handler = self.servos[joint].port_handler
+        packet_handler = self.servos[joint].packet_handler
+        packet_handler.write4ByteTxRx(port_handler, self.ids[joint], VEL_PROFILE_ADDR, time)
 
     @staticmethod
     def _cosines_law(l1, l2, opposite_l):
@@ -150,7 +150,7 @@ class Arm:
 
 
 arm = Arm()
-arm.set_profile_time(1, 4000)
+arm.set_profile_time(joint=1, time=4000)
 # arm.move_arm_joints(joint_id=1, joint_angle=0, time=4000)
 
 # arm.move_arm_joints(joint_id=1, joint_angle=0, time=2000)
