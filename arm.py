@@ -89,15 +89,15 @@ class Arm:
         if joint_id == 0: 
             gear_ratio = 32 / 24
             joint_angle = (-joint_angle + 180) # 0 degrees when the servos are at 180 deg
-            joint_angle = int((joint_angle*gear_ratio) * 4095 / 360) # add the effect of the gear ratio
+            joint_angle = int((joint_angle) * 4095 / 360) # add the effect of the gear ratio
             set_position(self.servos[0], [joint_angle])
         
         # if self.servos.model[joint_id] == 'MX-64': 
         if joint_id == 1: 
             
             joint_angle_offset = (-joint_angle + 120) # 0 degrees when the servos are at 180 deg
-            ARM_MIN = 120
-            ARM_MAX = 160
+            ARM_MIN = 90
+            ARM_MAX = 165
 
             if joint_angle_offset < ARM_MIN: 
                 joint_angle_offset = ARM_MIN
@@ -152,7 +152,7 @@ class Arm:
 
 arm = Arm()
 # arm.set_profile_time(joint=1, time=4000)
-arm.move_arm_joints(joint_id=1, joint_angle=30, time=2000)
+arm.move_arm_joints(joint_id=1, joint_angle=-25, time=4000)
 
 # arm.move_arm_joints(joint_id=1, joint_angle=0, time=2000)
 
