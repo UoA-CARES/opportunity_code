@@ -15,17 +15,18 @@ class Arm:
         ids = [5, 7, 8]
         # models =["MX-106", "MX-64", "MX-64", "XL430-W250-T"]
         # models =["MX-28", "MX-106", "MX-64", "XL430-W250-T"]
-        models =["MX-28", "MX-64", "XL430-W250-T"]
+        self.models =["MX-28", "MX-64", "XL430-W250-T"]
         #Going toward the end of the arm, servos have ids 5-8
         for i in range(4):
             self.servos.append(
                 servo_factory.create_servo(
-                    model=models[i],
+                    model=self.models[i],
                     port="/dev/ttyUSB0",
-                    protocol=(1 if models[i][:2] in ["MX", "AX"] else 2),
+                    # protocol=(1 if self.models[i][:2] in ["MX", "AX"] else 2),
+                    protocol=(1 if self.models[i][:2] in ["AX"] else 2),
                     baudrate=1000000,
-                    max=2560, #need to figure out range of motion, for now 45 degrees
-                    min=1536,
+                    max=4095, #need to figure out range of motion, for now 45 degrees
+                    min=0,
                     id = ids[i],
                 )
             )
@@ -77,7 +78,8 @@ class Arm:
 
     def move_arm_joints(self, joint_id: int=0, joint_angle: int=0, time: int=2000):
         
-        if joint_id == 1: 
+        # if self.servos.model[joint_id] == 'MX-64': 
+        if self.models[joint_id]: 
             VEL_PROFILE_ADDR = 112
             port_handler = self.servos[1].port_handler
             packet_handler = self.servos[1].packet_hander
@@ -124,4 +126,21 @@ class Arm:
             pass
         else:
             pass
+
+
+arm = Arm()
+
+arm.move_arm_joints(joint_id=0, joint_angle=0, time=2000)
+
+# arm.move_arm_joints(joint_id=1, joint_angle=0, time=2000)
+
+# arm.move_arm_joints(joint_id=2, joint_angle=0, time=2000)
+
+
+
+
+
+
+
+
 
