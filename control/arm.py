@@ -1,8 +1,7 @@
 from util import set_position
 from servo_factory import servo_factory
-
 import numpy as np
-
+# from cares_lib.dyanmixel.Servo improt Servo
 
 class Arm:
     # define arm parameteres
@@ -76,8 +75,14 @@ class Arm:
         set_position(self.servos, [int(theta[0]), int(theta[1]), int(theta[2])])
     
 
-    def move_arm_joints(self, joint_id: int=0, joint_angle: int=0):
+    def move_arm_joints(self, joint_id: int=0, joint_angle: int=0, time: int=2000):
         
+        if joint_id == 1: 
+            VEL_PROFILE_ADDR = 112
+            port_handler = self.servos[1].port_handler
+            packet_handler = self.servos[1].packet_hander
+            packet_handler.write4ByteTxRx(port_handler, joint_id, VEL_PROFILE_ADDR, time)
+
         gear_ratio = 32 / 24
         
         joint_angle = (-joint_angle + 180) # 0 degrees when the servos are at 180 deg
@@ -101,18 +106,21 @@ class Arm:
 
 
     def handle_input(self, key_1, key_2, key_3):
-        if key_1: 
 
+        if key_1: # move vertical axis joint (arm base joint)
+            self.move_arm_joints(joint_id=0, joint_angle=0)
             pass
         else:
             pass
         
-        if key_2: 
+        if key_2: # move arm joint (arm joint)
+            self.move_arm_joints(joint_id=1, joint_angle=0)
             pass
         else:
             pass
         
-        if key_3: 
+        if key_3: # move camera joint
+            self.move_arm_joints(joint_id=2, joint_angle=0)
             pass
         else:
             pass
