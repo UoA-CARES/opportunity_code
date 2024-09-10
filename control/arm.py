@@ -17,7 +17,7 @@ class Arm:
         # models =["MX-28", "MX-106", "MX-64", "XL430-W250-T"]
         self.models =["MX-28", "MX-64", "XL430-W250-T"]
         #Going toward the end of the arm, servos have ids 5-8
-        for i in range(4):
+        for i in range(3):
             self.servos.append(
                 servo_factory.create_servo(
                     model=self.models[i],
@@ -78,29 +78,50 @@ class Arm:
 
     def move_arm_joints(self, joint_id: int=0, joint_angle: int=0, time: int=2000):
         
-        # if self.servos.model[joint_id] == 'MX-64': 
-        if self.models[joint_id]: 
-            VEL_PROFILE_ADDR = 112
-            port_handler = self.servos[1].port_handler
-            packet_handler = self.servos[1].packet_hander
-            packet_handler.write4ByteTxRx(port_handler, joint_id, VEL_PROFILE_ADDR, time)
 
-        gear_ratio = 32 / 24
-        
-        joint_angle = (-joint_angle + 180) # 0 degrees when the servos are at 180 deg
-        
-        if joint_id == 1:
-            joint_angle  = int((joint_angle*gear_ratio) * 4095 / 360) # add the effect of the gear ratio
+
+        # 120 
+        self.set_profile_time(0, time)
+        self.set_profile_time(1, time)
+        self.set_profile_time(2, time)
+
+        if joint_id == 0: 
+            gear_ratio = 32 / 24
+            joint_angle = (-joint_angle + 180) # 0 degrees when the servos are at 180 deg
+            joint_angle = int((joint_angle*gear_ratio) * 4095 / 360) # add the effect of the gear ratio
             set_position(self.servos[0], [joint_angle])
-        elif joint_id == 2:
-            joint_angle = int((joint_angle) * 4095 / 360) # no offset
-            set_position(self.servos[1], [joint_angle])
-        elif joint_id == 3:
-            joint_angle = int((joint_angle) * 4095 / 360) # no offset
-            set_position(self.servos[2], [joint_angle])
+        
+        # if self.servos.model[joint_id] == 'MX-64': 
+        if joint_id == 1: 
+            
+            joint_angle_offset = (-joint_angle + 120) # 0 degrees when the servos are at 180 deg
+            ARM_MIN = 120
+            ARM_MAX = 160
+
+            if joint_angle_offset < ARM_MIN: 
+                joint_angle_offset = ARM_MIN
+            elif joint_angle_offset > ARM_MAX: 
+                joint_angle_offset = ARM_MAX
+            else: 
+                pass
+            
+            self.set_profile_time(joint_id, time)
+            gear_ratio = 32 / 24
+            joint_angle_offset  = int((joint_angle_offset*gear_ratio) * 4095 / 360) # add the effect of the gear ratio
+            set_position(self.servos[1], [joint_angle_offset])
+
+            joint_angle_camera = -(joint_angle) + 180
+            joint_angle_camera = int((joint_angle_camera) * 4095 / 360) # no offset
+            set_position(self.servos[2], [joint_angle_camera])
+
         else: 
             return
     
+    def set_profile_time(self, id, time):
+        VEL_PROFILE_ADDR = 112
+        port_handler = self.servos[id].port_handler
+        packet_handler = self.servos[id].packet_hander
+        packet_handler.write4ByteTxRx(port_handler, id, VEL_PROFILE_ADDR, time)
 
     @staticmethod
     def _cosines_law(l1, l2, opposite_l):
@@ -129,8 +150,8 @@ class Arm:
 
 
 arm = Arm()
-
-arm.move_arm_joints(joint_id=0, joint_angle=0, time=2000)
+arm.set_profile_time(1, 4000)
+# arm.move_arm_joints(joint_id=1, joint_angle=0, time=4000)
 
 # arm.move_arm_joints(joint_id=1, joint_angle=0, time=2000)
 
