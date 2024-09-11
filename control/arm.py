@@ -4,6 +4,8 @@ import numpy as np
 import time
 # from cares_lib.dyanmixel.Servo improt Servo
 
+
+
 class Arm:
     # define arm parameteres
     joint_limits = {
@@ -37,7 +39,85 @@ class Arm:
             )
 
 
+    def move_joint_simple(self, joint_id: int, step: int=5, direc: int=1, time: int=4000):
+        is_limit_reached = 0
+        # Set time profile
+        self.set_profile_time(joints=[joint_id], time=time)
+
+        # Read current servo position
+        current_pos = get_servo_position(self.servos[joint_id])
+        
+        # Step the position bu POS_STEP
+        new_pos = current_pos + step if direc > 0 else current_pos - step
+
+        # Check if withing limts
+        if new_pos > self.joint_limits[f"joint_{joint_id}"][1]:
+            new_pos = self.joint_limits[f"joint_{joint_id}"][1]
+            is_limit_reached = 1
+        elif new_pos < self.joint_limits[f"joint_{joint_id}"][0]:
+            new_pos = self.joint_limits[f"joint_{joint_id}"][0]
+            is_limit_reached = -1
+        # Convert degrees to positions
+        new_pos = int(new_pos * 4096 / 360)
+
+        # Move servo to new_pos
+        set_position([self.servos[joint_id]], [new_pos])
+        return is_limit_reached
     
+    def set_profile_time(self, joints: list[int], time):
+        VEL_PROFILE_ADDR = 112
+
+        for joint in joints:
+            port_handler = self.servos[joint].port_handler
+            packet_handler = self.servos[joint].packet_handler
+            packet_handler.write4ByteTxRx(port_handler, self.ids[joint], VEL_PROFILE_ADDR, time)
+    
+    
+    def handle_input(self, left_d_pad, right_d_pad, up_d_pad, down_d_pad, right_trigger, left_trigger):
+
+        if left_d_pad == 1: # move vertical axis joint (arm base joint)
+            self.move_joint_simple(joint_id=0, step=5, direc=-1, time=2000)
+
+        elif right_d_pad == 1:# move vertical axis joint (arm base joint)
+            self.move_joint_simple(joint_id=0, step=5, direc=1, time=2000)
+
+        elif up_d_pad == 1: # move arm joint (arm joint)
+            self.move_joint_simple(joint_id=1, step=5, direc=1, time=2000)
+
+        if down_d_pad == 1: # move arm joint (arm joint)
+            self.move_joint_simple(joint_id=1, step=5, direc=-1, time=2000)
+
+        elif right_trigger > 0.1: # move camera joint
+            self.move_joint_simple(joint_id=2, step=5, direc=1, time=2000)
+        
+        elif left_trigger > 0.1:
+            self.move_joint_simple(joint_id=2, step=5, direc=-1, time=2000)
+
+        else:
+            pass
+
+    def random_movement(self, step=5, time=3000):
+        direc_0 = 1
+        direc_1 = 1
+        direc_2 = 1
+
+        while True:
+            limit_0 = self.move_joint_simple(joint_id=0, step=step, direc=direc_0, time=time)
+            limit_1 = self.move_joint_simple(joint_id=1, step=step, direc=direc_1, time=time)
+            limit_2 = self.move_joint_simple(joint_id=2, step=step, direc=direc_2, time=time)
+
+            # Toggle direction
+            if limit_0 is not 0:
+                direc_0 *= -1
+            if limit_1 is not 0:
+                direc_1 *= -1
+            if limit_2 is not 0:
+                direc_2 *= -1
+
+            time.sleep(time//1000)
+
+
+    """
     def move_arm_joints(self, joint_id: int=0, joint_angle: int=0, time: int=2000, camera_horiz=False):
         
         self.set_profile_time(joints=[0, 1, 2], time=time)
@@ -45,7 +125,7 @@ class Arm:
         if joint_id == 0: 
             gear_ratio = 32 / 24
             joint_angle = (-joint_angle + 180) # 0 degrees when the servos are at 180 deg
-            joint_angle = int((joint_angle) * 4095 / 360) # add the effect of the gear ratio
+            joint_angle = int((joint_angle) * gear_ratio * 4095 / 360) # add the effect of the gear ratio
             set_position(self.servos[0], [joint_angle])
         
         # if self.servos.model[joint_id] == 'MX-64': 
@@ -81,64 +161,7 @@ class Arm:
 
         else: 
             return
-
-
-    def move_joint_simple(self, joint_id: int, step: int=5, direc: int=1, time: int=4000):
-
-        # Set time profile
-        self.set_profile_time(joints=[joint_id], time=time)
-
-        # Read current servo position
-        current_pos = get_servo_position(self.servos[joint_id])
-        
-        # Step the position bu POS_STEP
-        new_pos = current_pos + step if direc > 0 else current_pos - step
-
-        # Check if withing limts
-        if new_pos > self.joint_limits[f"joint_{joint_id}"][1]:
-            new_pos = self.joint_limits[f"joint_{joint_id}"][1]
-        elif new_pos < self.joint_limits[f"joint_{joint_id}"][0]:
-            new_pos = self.joint_limits[f"joint_{joint_id}"][0]
-        
-        # Convert degrees to positions
-        new_pos = int(new_pos * 4096 / 360)
-
-        # Move servo to new_pos
-        set_position([self.servos[joint_id]], [new_pos])
-        
-    
-    def set_profile_time(self, joints: list[int], time):
-        VEL_PROFILE_ADDR = 112
-
-        for joint in joints:
-            port_handler = self.servos[joint].port_handler
-            packet_handler = self.servos[joint].packet_handler
-            packet_handler.write4ByteTxRx(port_handler, self.ids[joint], VEL_PROFILE_ADDR, time)
-    
-    
-    def handle_input(self, left_d_pad, right_d_pad, up_d_pad, down_d_pad, right_trigger, left_trigger):
-
-        if left_d_pad == 1: # move vertical axis joint (arm base joint)
-            self.move_joint_simple(joint_id=0, step=5, direc=-1, time=2000)
-
-        elif right_d_pad == 1:
-            self.move_joint_simple(joint_id=0, step=5, direc=1, time=2000)
-
-        elif up_d_pad == 1:
-            self.move_joint_simple(joint_id=1, step=5, direc=1, time=2000)
-
-        if down_d_pad: # move arm joint (arm joint)
-            self.move_joint_simple(joint_id=1, step=5, direc=-1, time=2000)
-
-        elif right_trigger > 0.1: # move camera joint
-            self.move_joint_simple(joint_id=2, step=5, direc=1, time=2000)
-        
-        elif left_trigger > 0.1:
-            self.move_joint_simple(joint_id=2, step=5, direc=-1, time=2000)
-
-        else:
-            pass
-
+    """
 
     '''
     # simplified inverse kinematics for 3 DOF arm (rough approximation of the real arm)
@@ -198,8 +221,8 @@ class Arm:
 
 arm = Arm()
 # arm.set_profile_time(joint=1, time=4000)
-arm.move_arm_joints(joint_id=1, joint_angle=-25, time=4000)
-
+# arm.move_arm_joints(joint_id=1, joint_angle=-25, time=4000)
+arm.move_joint_simple(joint_id=1, step=5, direc=1, time=3000)
 # arm.move_arm_joints(joint_id=1, joint_angle=0, time=2000)
 
 # arm.move_arm_joints(joint_id=2, joint_angle=0, time=2000)
