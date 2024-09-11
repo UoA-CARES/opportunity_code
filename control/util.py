@@ -72,6 +72,12 @@ def get_servo_position(servo):
     """
     return servo.current_position()
 
+def set_servo_torque(servo, enable):
+    if enable:
+        servo.enable_torque()
+    else:
+        servo.disable_torque()
+
 def get_servo_positions(servos):
     """
     Get the positions of the servos
