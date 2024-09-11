@@ -44,7 +44,7 @@ class SoundEffects:
                 sound_effect = random.randint(0, 12)
 
                 if sound_effect == 0:
-                    playsound.playsound("control/media/robot_sounds/robot_sounds_1.mp3", True)
+                    playsound.playsound("control/media/robot_sounds/robot_sound_1.mp3", True)
                 elif sound_effect == 1:
                     playsound.playsound("control/media/robot_sounds/robot_sound_2.mp3", True)
                 elif sound_effect == 2:
