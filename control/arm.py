@@ -81,18 +81,18 @@ class Arm:
             packet_handler.write4ByteTxRx(port_handler, self.ids[joint], VEL_PROFILE_ADDR, t)
     
     
-    def handle_input(self, left_d_pad, right_d_pad, up_d_pad, down_d_pad, right_trigger, left_trigger):
+    def handle_input(self, d_pad_x, d_pad_y, right_trigger, left_trigger):
         # print([left_d_pad, right_d_pad, up_d_pad, down_d_pad, right_trigger, left_trigger])
-        if left_d_pad == 1: # move vertical axis joint (arm base joint)
+        if d_pad_x == -1: # move vertical axis joint (arm base joint)
             self.move_joint_simple(joint_id=0, step=25, direc=-1, t=2000)
 
-        elif right_d_pad == 1:# move vertical axis joint (arm base joint)
+        elif d_pad_x == 1:# move vertical axis joint (arm base joint)
             self.move_joint_simple(joint_id=0, step=25, direc=1, t=2000)
 
-        elif up_d_pad == 1: # move arm joint (arm joint)
+        elif d_pad_y == -1: # move arm joint (arm joint)
             self.move_joint_simple(joint_id=1, step=5, direc=1, t=1500)
 
-        if down_d_pad == 1: # move arm joint (arm joint)
+        if d_pad_y == 1: # move arm joint (arm joint)
             self.move_joint_simple(joint_id=1, step=5, direc=-1, t=1500)
 
         elif right_trigger > 0.1: # move camera joint

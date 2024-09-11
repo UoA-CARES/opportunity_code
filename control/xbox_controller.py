@@ -62,8 +62,7 @@ class XboxController(object):
 
         mast_inputs = [right_bumper, left_bumper, right_joy_y]
         
-        
-        arm_inputs = [X_button, B_button, Y_button, A_button, right_trigger, left_trigger]
+        arm_inputs = [self.DPadX, self.DPadY, right_trigger, left_trigger]
 
         input_dict = {
                 "wheels": wheels_inputs, 
@@ -71,7 +70,6 @@ class XboxController(object):
                 "check_mode": check_mode, 
                 "mast": mast_inputs,
                 "arm": arm_inputs,
-                "test": [self.DPadX, self.DPadY]
                 }
 
         return input_dict
