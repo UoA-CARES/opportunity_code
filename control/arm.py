@@ -9,9 +9,9 @@ import time
 class Arm:
     # define arm parameteres
     joint_limits = {
-        "joint_0": [180, 200],
-        "joint_1": [180, 200],
-        "joint_2": [180, 200]
+        "joint_0": [140, 175],
+        "joint_1": [260, 325],
+        "joint_2": [230, 310]
     }
 
     def __init__(self):
