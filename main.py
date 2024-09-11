@@ -6,6 +6,7 @@ from control import (
     Wheels,
     Mast,
     Arm,
+    FaceTracker,
     SoundEffects,
     handle_check_mode,
     play_check_mode_sound,
@@ -26,13 +27,12 @@ def main():
         max_linear_velocity=wheels_lin_vel,
         max_angular_velocity=wheels_ang_vel,
     )
-
     mast = Mast(max_angular_velocity=mast_ang_vel)
-
     arm = Arm()
 
     joy = XboxController()
     sounds_effects = SoundEffects()
+    face_tracker = FaceTracker(replacement_mode="one")
 
     operating_mode = OperatingMode.EMERGENCY_STOP
 
@@ -45,7 +45,7 @@ def main():
     )
 
     camera_tracking_stationary_mode_thread = threading.Thread(
-        target=camera_tracking_stationary_mode, args=(end_event, reset_event)
+        target=camera_tracking_stationary_mode, args=(mast, face_tracker, end_event, reset_event)
     )
 
     arm_stationary_mode_thread.start()
@@ -73,10 +73,10 @@ def main():
 
         if operating_mode == OperatingMode.DRIVE:
             # Use Controller to drive the rover and control the mast
-            pass
-            # wheels.handle_inputs(control_inputs["wheels"])
+            wheels.handle_input(*control_inputs["wheels"])
+            mast.handle_input(*control_inputs["mast"])
         elif operating_mode == OperatingMode.ROBOTIC_ARM:
-            # Use Controller to control the robotic arm
+            # No longer using this mode
             pass
         elif operating_mode == OperatingMode.STATIONARY:
             # Stationary mode
@@ -90,8 +90,9 @@ def main():
 
         elif operating_mode == OperatingMode.EMERGENCY_STOP:
             # Send stop commands to all components
-            pass
-            # wheels.stop()
+            wheels.stop()
+            mast.stop_rotating()
+            mast.stop_tilting()
 
         time.sleep(0.01)
 
@@ -109,17 +110,33 @@ def robotic_arm_stationary_mode(end_event: Event, reset_event: Event):
         time.sleep(1)
 
 
-# Pass in camera and mast object once integrated
-def camera_tracking_stationary_mode(end_event: Event, reset_event: Event):
+def camera_tracking_stationary_mode(mast: Mast, face_tracker: FaceTracker, end_event: Event, reset_event: Event):
 
-    i = 0
-    while True:
+    while face_tracker.is_facetracker():
+
         if end_event.is_set():
+            mast.stop_rotating()
+            mast.stop_tilting()
             reset_event.wait()
 
-        print(f"Camera Tracking Stationary Mode {i}")
-        i += 1
-        time.sleep(1)
+        x_direction = face_tracker.get_move_horizontal()
+        y_direction = face_tracker.get_move_vertical()
+
+        if x_direction == 1:
+            mast.rotate_clockwise(20)
+        elif x_direction == -1:
+            mast.rotate_counterclockwise(20)
+        else:
+            mast.stop_rotating()
+
+        if y_direction == 1:
+            mast.tilt_down(10)
+        elif y_direction == -1:
+            mast.tilt_up(10)
+        else:
+            mast.stop_tilting()
+         
+        time.sleep(0.1)
 
 
 if __name__ == "__main__":
