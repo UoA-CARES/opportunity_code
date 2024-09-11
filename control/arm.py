@@ -1,5 +1,5 @@
-from util import set_position, get_servo_position
-from servo_factory import servo_factory
+from .util import set_position, get_servo_position
+from .servo_factory import servo_factory
 import numpy as np
 import time
 # from cares_lib.dyanmixel.Servo improt Servo
@@ -219,10 +219,10 @@ class Arm:
 
 
 
-arm = Arm()
+# arm = Arm()
 # arm.set_profile_time(joint=1, time=4000)
 # arm.move_arm_joints(joint_id=1, joint_angle=-25, time=4000)
-arm.move_joint_simple(joint_id=1, step=5, direc=1, time=3000)
+# arm.move_joint_simple(joint_id=1, step=5, direc=1, time=3000)
 # arm.move_arm_joints(joint_id=1, joint_angle=0, time=2000)
 
 # arm.move_arm_joints(joint_id=2, joint_angle=0, time=2000)

@@ -3,7 +3,7 @@ import time
 from control import (
     handle_operating_mode,
     OperatingMode,
-    Arm,
+    arm,
     XboxController,
     SoundEffects,
     handle_check_mode,
@@ -14,7 +14,7 @@ from control import (
 def main():
 
 
-    arm = Arm()
+    arm_ = arm.Arm()
 
     joy = XboxController()
     sounds_effects = SoundEffects()
@@ -38,7 +38,7 @@ def main():
 
         # Sending Commands to arm
         if operating_mode == OperatingMode.ROBOTIC_ARM:
-            arm.handle_input(*control_inputs["arm"])
+            arm_.handle_input(*control_inputs["arm"])
         else:
             pass
         time.sleep(0.01)

@@ -68,7 +68,7 @@ class XboxController(object):
         right_d_pad = self.RightDPad
         up_d_pad = self.UpDPad
         down_d_pad  = self.DownDPad
-        arm_inputs = [left_d_pad, right_d_pad, up_d_pad, down_d_pad, right_trigger, left_trigger]
+        arm_inputs = [X_button, B_button, Y_button, A_button, right_trigger, left_trigger]
 
         input_dict = {
                 "wheels": wheels_inputs, 
