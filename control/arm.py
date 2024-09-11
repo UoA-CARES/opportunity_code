@@ -1,4 +1,4 @@
-from util import set_position
+from util import set_position, get_servo_position
 from servo_factory import servo_factory
 import numpy as np
 import time
@@ -6,7 +6,11 @@ import time
 
 class Arm:
     # define arm parameteres
-    L2, L3 = 380, 368 # TODO: update this
+    joint_limits = {
+        "joint_0": [180, 200],
+        "joint_1": [180, 200],
+        "joint_2": [180, 200]
+    }
 
     def __init__(self):
 
@@ -31,6 +35,109 @@ class Arm:
                     id = self.ids[i],
                 )
             )
+
+
+    
+    def move_arm_joints(self, joint_id: int=0, joint_angle: int=0, time: int=2000, camera_horiz=False):
+        
+        self.set_profile_time(joints=[0, 1, 2], time=time)
+
+        if joint_id == 0: 
+            gear_ratio = 32 / 24
+            joint_angle = (-joint_angle + 180) # 0 degrees when the servos are at 180 deg
+            joint_angle = int((joint_angle) * 4095 / 360) # add the effect of the gear ratio
+            set_position(self.servos[0], [joint_angle])
+        
+        # if self.servos.model[joint_id] == 'MX-64': 
+        elif joint_id == 1: 
+            
+            joint_angle_offset = (-joint_angle + 120) # 0 degrees when the servos are at 180 deg
+
+            ARM_MIN = 120 - (-20)             
+            ARM_MAX = 120 - (-45) # 165 # 120 - 165 = - 45 deg
+
+            if joint_angle_offset < ARM_MIN: 
+                joint_angle_offset = ARM_MIN
+            elif joint_angle_offset > ARM_MAX: 
+                joint_angle_offset = ARM_MAX
+            else: 
+                pass
+            
+            self.set_profile_time([joint_id], time)
+            joint_angle_offset  = int((joint_angle_offset) * 4095 / 360) # add the effect of the gear ratio
+            set_position([self.servos[1]], [joint_angle_offset])
+            
+            # keep the camera flat
+            if camera_horiz == True:
+                joint_angle_camera = -(joint_angle) + 180
+                joint_angle_camera = int((joint_angle_camera) * 4095 / 360) # no offset
+                set_position([self.servos[2]], [joint_angle_camera])
+        
+        elif joint_id == 2: 
+            servo_1_pos = get_servo_position(self.servos[1])
+            joint_angle_camera = -(joint_angle) + 180
+            joint_angle_camera = int((joint_angle_camera) * 4095 / 360) # no offset
+            set_position([self.servos[2]], [joint_angle_camera])
+
+        else: 
+            return
+
+
+    def move_joint_simple(self, joint_id: int, step: int=5, direc: int=1, time: int=4000):
+
+        # Set time profile
+        self.set_profile_time(joints=[joint_id], time=time)
+
+        # Read current servo position
+        current_pos = get_servo_position(self.servos[joint_id])
+        
+        # Step the position bu POS_STEP
+        new_pos = current_pos + step if direc > 0 else current_pos - step
+
+        # Check if withing limts
+        if new_pos > self.joint_limits[f"joint_{joint_id}"][1]:
+            new_pos = self.joint_limits[f"joint_{joint_id}"][1]
+        elif new_pos < self.joint_limits[f"joint_{joint_id}"][0]:
+            new_pos = self.joint_limits[f"joint_{joint_id}"][0]
+        
+        # Convert degrees to positions
+        new_pos = int(new_pos * 4096 / 360)
+
+        # Move servo to new_pos
+        set_position([self.servos[joint_id]], [new_pos])
+        
+    
+    def set_profile_time(self, joints: list[int], time):
+        VEL_PROFILE_ADDR = 112
+
+        for joint in joints:
+            port_handler = self.servos[joint].port_handler
+            packet_handler = self.servos[joint].packet_handler
+            packet_handler.write4ByteTxRx(port_handler, self.ids[joint], VEL_PROFILE_ADDR, time)
+    
+    
+    def handle_input(self, left_d_pad, right_d_pad, up_d_pad, down_d_pad, right_trigger, left_trigger):
+
+        if left_d_pad == 1: # move vertical axis joint (arm base joint)
+            self.move_joint_simple(joint_id=0, step=5, direc=-1, time=2000)
+
+        elif right_d_pad == 1:
+            self.move_joint_simple(joint_id=0, step=5, direc=1, time=2000)
+
+        elif up_d_pad == 1:
+            self.move_joint_simple(joint_id=1, step=5, direc=1, time=2000)
+
+        if down_d_pad: # move arm joint (arm joint)
+            self.move_joint_simple(joint_id=1, step=5, direc=-1, time=2000)
+
+        elif right_trigger > 0.1: # move camera joint
+            self.move_joint_simple(joint_id=2, step=5, direc=1, time=2000)
+        
+        elif left_trigger > 0.1:
+            self.move_joint_simple(joint_id=2, step=5, direc=-1, time=2000)
+
+        else:
+            pass
 
 
     '''
@@ -80,75 +187,13 @@ class Arm:
 
         '''
     
-    def move_arm_joints(self, joint_id: int=0, joint_angle: int=0, time: int=2000, camera_horiz=False):
-        
-        self.set_profile_time(joints=[0, 1, 2], time=time)
-
-        if joint_id == 0: 
-            gear_ratio = 32 / 24
-            joint_angle = (-joint_angle + 180) # 0 degrees when the servos are at 180 deg
-            joint_angle = int((joint_angle) * 4095 / 360) # add the effect of the gear ratio
-            set_position(self.servos[0], [joint_angle])
-        
-        # if self.servos.model[joint_id] == 'MX-64': 
-        if joint_id == 1: 
-            
-            joint_angle_offset = (-joint_angle + 120) # 0 degrees when the servos are at 180 deg
-            ARM_MIN = 90 # 120 - 90 = 30 deg
-            ARM_MAX = 165 # 120 - 165 = - 45 deg
-
-            if joint_angle_offset < ARM_MIN: 
-                joint_angle_offset = ARM_MIN
-            elif joint_angle_offset > ARM_MAX: 
-                joint_angle_offset = ARM_MAX
-            else: 
-                pass
-            
-            self.set_profile_time([joint_id], time)
-            joint_angle_offset  = int((joint_angle_offset) * 4095 / 360) # add the effect of the gear ratio
-            set_position([self.servos[1]], [joint_angle_offset])
-            
-            # keep the camera flat
-            if camera_horiz == True:
-                joint_angle_camera = -(joint_angle) + 180
-                joint_angle_camera = int((joint_angle_camera) * 4095 / 360) # no offset
-                set_position([self.servos[2]], [joint_angle_camera])
-
-        else: 
-            return
-    
-    def set_profile_time(self, joints: list[int], time):
-        VEL_PROFILE_ADDR = 112
-
-        for joint in joints:
-            port_handler = self.servos[joint].port_handler
-            packet_handler = self.servos[joint].packet_handler
-            packet_handler.write4ByteTxRx(port_handler, self.ids[joint], VEL_PROFILE_ADDR, time)
-
+    '''
     @staticmethod
     def _cosines_law(l1, l2, opposite_l):
         return np.arccos((l1**2 + l2**2 - opposite_l**2)/(2*l1*l2))
+    '''
 
 
-    def handle_input(self, key_1, key_2, key_3):
-
-        if key_1: # move vertical axis joint (arm base joint)
-            self.move_arm_joints(joint_id=0, joint_angle=0)
-            pass
-        else:
-            pass
-        
-        if key_2: # move arm joint (arm joint)
-            self.move_arm_joints(joint_id=1, joint_angle=0)
-            pass
-        else:
-            pass
-        
-        if key_3: # move camera joint
-            self.move_arm_joints(joint_id=2, joint_angle=0)
-            pass
-        else:
-            pass
 
 
 arm = Arm()
