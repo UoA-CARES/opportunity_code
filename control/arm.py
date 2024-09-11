@@ -1,4 +1,4 @@
-from .util import set_position, get_servo_position
+from .util import set_position, get_servo_position, set_servo_torque
 from .servo_factory import servo_factory
 import numpy as np
 import time
@@ -10,7 +10,7 @@ class Arm:
     # define arm parameteres
     joint_limits = {
         "joint_0": [140, 200],
-        "joint_1": [260, 325],
+        "joint_1": [260, 310],
         "joint_2": [230, 310]
     }
 
@@ -44,6 +44,9 @@ class Arm:
         # Set time profile
         self.set_profile_time(joints=[joint_id], t=t)
 
+        if joint_id == 0: 
+            set_servo_torque(self.servos[joint_id], enable=True)
+
         # Read current servo position
         current_pos = int(get_servo_position(self.servos[joint_id]) * 360 / 4096)
         print(f'current {current_pos}')
@@ -64,7 +67,9 @@ class Arm:
 
         # Move servo to new_pos
         set_position([self.servos[joint_id]], [new_pos])
-        time.sleep(t//1000)
+        time.sleep(t//1000 - 0.1)
+        if joint_id == 0: 
+            set_servo_torque(self.servos[joint_id], enable=False)
         return is_limit_reached
     
     def set_profile_time(self, joints: list[int], t):
@@ -84,17 +89,17 @@ class Arm:
         elif right_d_pad == 1:# move vertical axis joint (arm base joint)
             self.move_joint_simple(joint_id=0, step=25, direc=1, t=2000)
 
-        # elif up_d_pad == 1: # move arm joint (arm joint)
-        #     self.move_joint_simple(joint_id=1, step=5, direc=1, time=2000)
+        elif up_d_pad == 1: # move arm joint (arm joint)
+            self.move_joint_simple(joint_id=1, step=5, direc=1, t=1500)
 
-        # if down_d_pad == 1: # move arm joint (arm joint)
-        #     self.move_joint_simple(joint_id=1, step=5, direc=-1, time=2000)
+        if down_d_pad == 1: # move arm joint (arm joint)
+            self.move_joint_simple(joint_id=1, step=5, direc=-1, t=1500)
 
-        # elif right_trigger > 0.1: # move camera joint
-        #     self.move_joint_simple(joint_id=2, step=5, direc=1, time=2000)
+        elif right_trigger > 0.1: # move camera joint
+            self.move_joint_simple(joint_id=2, step=15, direc=1, t=1000)
         
-        # elif left_trigger > 0.1:
-        #     self.move_joint_simple(joint_id=2, step=5, direc=-1, time=2000)
+        elif left_trigger > 0.1:
+            self.move_joint_simple(joint_id=2, step=15, direc=-1, t=1000)
 
         # else:
         #     pass
