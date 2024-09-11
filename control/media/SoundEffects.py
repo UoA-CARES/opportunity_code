@@ -38,7 +38,7 @@ class SoundEffects:
                 self.play_happy_birthay()
 
             # Random chance to play a random sound effect
-            if random.randint(0, 2) == 0:
+            if random.randint(0, 3) == 0:
 
                 # Randomly select a sound effect from 13 different sound effects
                 sound_effect = random.randint(0, 12)
@@ -71,7 +71,7 @@ class SoundEffects:
                     playsound.playsound("control/media/robot_sounds/robot_sound_13.mp3", True)
                 
                 # Sleep for a random amount of time
-            time.sleep(random.randint(1, 3))
+            time.sleep(random.randint(5, 15))
             
         
 # Main test function
