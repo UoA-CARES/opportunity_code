@@ -93,25 +93,17 @@ def background_control(mast: Mast, face_tracker: FaceTracker, end_event: Event, 
 
         if x_direction == 1:
             mast.rotate_clockwise(20)
-            print("Rotating counterclockwise")
         elif x_direction == -1:
             mast.rotate_counterclockwise(20)
-            print("Rotating clockwise")
         else:
             mast.stop_rotating()
-            print("Stopping rotation")
 
         if y_direction == 1:
             mast.tilt_down(10)
-            print("Tilting down")
         elif y_direction == -1:
             mast.tilt_up(10)
-            print("Tilting up")
         else:
             mast.stop_tilting()
-            print("Stopping tilt")
-        
-        print("------------")
          
         time.sleep(0.1)
         i += 1
