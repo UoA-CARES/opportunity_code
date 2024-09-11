@@ -9,7 +9,7 @@ import time
 class Arm:
     # define arm parameteres
     joint_limits = {
-        "joint_0": [140, 175],
+        "joint_0": [140, 200],
         "joint_1": [260, 325],
         "joint_2": [230, 310]
     }
@@ -39,14 +39,14 @@ class Arm:
             )
 
 
-    def move_joint_simple(self, joint_id: int, step: int=5, direc: int=1, time: int=4000):
+    def move_joint_simple(self, joint_id: int, step: int=5, direc: int=1, t: int=4000):
         is_limit_reached = 0
         # Set time profile
-        self.set_profile_time(joints=[joint_id], time=time)
+        self.set_profile_time(joints=[joint_id], t=t)
 
         # Read current servo position
-        current_pos = get_servo_position(self.servos[joint_id])
-        
+        current_pos = int(get_servo_position(self.servos[joint_id]) * 360 / 4096)
+        print(f'current {current_pos}')
         # Step the position bu POS_STEP
         new_pos = current_pos + step if direc > 0 else current_pos - step
 
@@ -58,53 +58,56 @@ class Arm:
             new_pos = self.joint_limits[f"joint_{joint_id}"][0]
             is_limit_reached = -1
         # Convert degrees to positions
+        print(f"{joint_id}: move to {new_pos}")
         new_pos = int(new_pos * 4096 / 360)
+        
 
         # Move servo to new_pos
         set_position([self.servos[joint_id]], [new_pos])
+        time.sleep(t//1000)
         return is_limit_reached
     
-    def set_profile_time(self, joints: list[int], time):
+    def set_profile_time(self, joints: list[int], t):
         VEL_PROFILE_ADDR = 112
 
         for joint in joints:
             port_handler = self.servos[joint].port_handler
             packet_handler = self.servos[joint].packet_handler
-            packet_handler.write4ByteTxRx(port_handler, self.ids[joint], VEL_PROFILE_ADDR, time)
+            packet_handler.write4ByteTxRx(port_handler, self.ids[joint], VEL_PROFILE_ADDR, t)
     
     
     def handle_input(self, left_d_pad, right_d_pad, up_d_pad, down_d_pad, right_trigger, left_trigger):
-
+        # print([left_d_pad, right_d_pad, up_d_pad, down_d_pad, right_trigger, left_trigger])
         if left_d_pad == 1: # move vertical axis joint (arm base joint)
-            self.move_joint_simple(joint_id=0, step=5, direc=-1, time=2000)
+            self.move_joint_simple(joint_id=0, step=25, direc=-1, t=2000)
 
         elif right_d_pad == 1:# move vertical axis joint (arm base joint)
-            self.move_joint_simple(joint_id=0, step=5, direc=1, time=2000)
+            self.move_joint_simple(joint_id=0, step=25, direc=1, t=2000)
 
-        elif up_d_pad == 1: # move arm joint (arm joint)
-            self.move_joint_simple(joint_id=1, step=5, direc=1, time=2000)
+        # elif up_d_pad == 1: # move arm joint (arm joint)
+        #     self.move_joint_simple(joint_id=1, step=5, direc=1, time=2000)
 
-        if down_d_pad == 1: # move arm joint (arm joint)
-            self.move_joint_simple(joint_id=1, step=5, direc=-1, time=2000)
+        # if down_d_pad == 1: # move arm joint (arm joint)
+        #     self.move_joint_simple(joint_id=1, step=5, direc=-1, time=2000)
 
-        elif right_trigger > 0.1: # move camera joint
-            self.move_joint_simple(joint_id=2, step=5, direc=1, time=2000)
+        # elif right_trigger > 0.1: # move camera joint
+        #     self.move_joint_simple(joint_id=2, step=5, direc=1, time=2000)
         
-        elif left_trigger > 0.1:
-            self.move_joint_simple(joint_id=2, step=5, direc=-1, time=2000)
+        # elif left_trigger > 0.1:
+        #     self.move_joint_simple(joint_id=2, step=5, direc=-1, time=2000)
 
-        else:
-            pass
+        # else:
+        #     pass
 
-    def random_movement(self, step=5, time=3000):
+    def random_movement(self, step=5, t=3000):
         direc_0 = 1
         direc_1 = 1
         direc_2 = 1
 
         while True:
-            limit_0 = self.move_joint_simple(joint_id=0, step=step, direc=direc_0, time=time)
-            limit_1 = self.move_joint_simple(joint_id=1, step=step, direc=direc_1, time=time)
-            limit_2 = self.move_joint_simple(joint_id=2, step=step, direc=direc_2, time=time)
+            limit_0 = self.move_joint_simple(joint_id=0, step=step, direc=direc_0, t=t)
+            limit_1 = self.move_joint_simple(joint_id=1, step=step, direc=direc_1, t=t)
+            limit_2 = self.move_joint_simple(joint_id=2, step=step, direc=direc_2, t=t)
 
             # Toggle direction
             if limit_0 is not 0:
@@ -114,7 +117,7 @@ class Arm:
             if limit_2 is not 0:
                 direc_2 *= -1
 
-            time.sleep(time//1000)
+            time.sleep(t//1000)
 
 
     """

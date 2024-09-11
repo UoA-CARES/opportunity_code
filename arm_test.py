@@ -37,10 +37,9 @@ def main():
         #     play_check_mode_sound(operating_mode, sounds_effects)
 
         # Sending Commands to arm
-        if operating_mode == OperatingMode.ROBOTIC_ARM:
-            arm_.handle_input(*control_inputs["arm"])
-        else:
-            pass
+        # if operating_mode == OperatingMode.ROBOTIC_ARM:
+        arm_.handle_input(*control_inputs["arm"])
+
         time.sleep(0.01)
 
 if __name__ == "__main__":
