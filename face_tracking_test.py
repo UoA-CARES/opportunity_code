@@ -20,8 +20,8 @@ def main():
     joy = XboxController()
     sounds_effects = SoundEffects()
     face_tracker = FaceTracker(replacement_mode="one")
-    
-    operating_mode = OperatingMode.STATIONARY
+
+    operating_mode = OperatingMode.EMERGENCY_STOP
 
     # Set up background threads for stationary mode
     end_event = Event()

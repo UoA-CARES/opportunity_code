@@ -1,24 +1,40 @@
 import time
-from control import XboxController, OperatingMode, handle_operating_mode, Wheels, SoundEffects, handle_check_mode, play_check_mode_sound
+from control import (
+    XboxController,
+    OperatingMode,
+    handle_operating_mode,
+    Wheels,
+    Mast,
+    Arm,
+    SoundEffects,
+    handle_check_mode,
+    play_check_mode_sound,
+)
 import threading
 from threading import Event
 
 
 def main():
 
-    max_angular_velocity = 200
-    max_linear_velocity = 500
+    wheels_lin_vel = 200
+    wheels_ang_vel = 200
 
-    # # Instantiate the Components
-    # wheels = Wheels(
-    #     max_linear_velocity=max_linear_velocity,
-    #     max_angular_velocity=max_angular_velocity,
-    # )
+    mast_ang_vel = 20
+
+    # Instantiate the Components
+    wheels = Wheels(
+        max_linear_velocity=wheels_lin_vel,
+        max_angular_velocity=wheels_ang_vel,
+    )
+
+    mast = Mast(max_angular_velocity=mast_ang_vel)
+
+    arm = Arm()
 
     joy = XboxController()
     sounds_effects = SoundEffects()
 
-    operating_mode = OperatingMode.STATIONARY
+    operating_mode = OperatingMode.EMERGENCY_STOP
 
     # Set up background threads for stationary mode
     end_event = Event()
@@ -45,7 +61,7 @@ def main():
         if new_operating_mode and operating_mode != new_operating_mode:
             operating_mode = new_operating_mode
             sounds_effects.play_change_mode()
-        
+
         # If user wants to check mode, play the sound effect for the current mode
         if handle_check_mode(control_inputs["check_mode"]):
             play_check_mode_sound(operating_mode, sounds_effects)
@@ -54,7 +70,7 @@ def main():
         if operating_mode != OperatingMode.STATIONARY:
             end_event.set()
             reset_event.clear()
-    
+
         if operating_mode == OperatingMode.DRIVE:
             # Use Controller to drive the rover and control the mast
             pass
@@ -79,6 +95,7 @@ def main():
 
         time.sleep(0.01)
 
+
 # Pass in arm object once integrated
 def robotic_arm_stationary_mode(end_event: Event, reset_event: Event):
 
@@ -91,6 +108,7 @@ def robotic_arm_stationary_mode(end_event: Event, reset_event: Event):
         print(f"Robotic Arm Stationary Mode {i}")
         time.sleep(1)
 
+
 # Pass in camera and mast object once integrated
 def camera_tracking_stationary_mode(end_event: Event, reset_event: Event):
 
@@ -99,7 +117,7 @@ def camera_tracking_stationary_mode(end_event: Event, reset_event: Event):
         if end_event.is_set():
             reset_event.wait()
 
-        print(f"Camera Tracking Stationary Mode {i}")  
+        print(f"Camera Tracking Stationary Mode {i}")
         i += 1
         time.sleep(1)
 
