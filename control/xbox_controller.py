@@ -63,8 +63,16 @@ class XboxController(object):
         right_joy_y = self.RightJoystickY
 
         mast_inputs = [right_bumper, left_bumper, right_joy_y]
+        
+        arm_inputs = [right_bumper, left_bumper, right_joy_y]
 
-        input_dict = {"wheels": wheels_inputs, "operating_mode": operating_mode_inputs, "check_mode": check_mode, "mast": mast_inputs}
+        input_dict = {
+                "wheels": wheels_inputs, 
+                "operating_mode": operating_mode_inputs, 
+                "check_mode": check_mode, 
+                "mast": mast_inputs,
+                "arm": arm_inputs}
+
         return input_dict
 
     def _monitor_controller(self):
