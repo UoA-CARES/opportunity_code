@@ -151,11 +151,11 @@ class Arm:
             limit_2 = self.move_joint_simple(joint_id=2, step=step, direc=direc_2, t=t)
 
             # Toggle direction
-            if limit_0 is not 0:
+            if limit_0 !=  0:
                 direc_0 *= -1
-            if limit_1 is not 0:
+            if limit_1 !=  0:
                 direc_1 *= -1
-            if limit_2 is not 0:
+            if limit_2 != 0:
                 direc_2 *= -1
 
             time.sleep(t//1000)
