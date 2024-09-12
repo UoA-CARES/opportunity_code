@@ -72,6 +72,12 @@ def get_servo_position(servo):
     """
     return servo.current_position()
 
+def set_servo_torque(servo, enable):
+    if enable:
+        servo.enable_torque()
+    else:
+        servo.disable_torque()
+
 def get_servo_positions(servos):
     """
     Get the positions of the servos
@@ -95,6 +101,8 @@ def set_velocity(servos, velocities):
     Note: servos aren't guaranteed to be the same model or protocol
     Assumption: Servos of the same model use the same protocol
     """
+    for servo in servos:
+        set_servo_torque(servo, True)
 
     # Group Servos based on Model
     servos_by_model: dict[str, tuple[Servo, float]] = _sort_servos_by_model(
@@ -180,6 +188,9 @@ def set_position(servos, positions):
     Note: servos aren't guaranteed to be the same model
     Assumption: Servos of the same model use the same protocol
     """
+
+    for servo in servos:
+        set_servo_torque(servo, True)
 
     # Group Servos based on Model
     servos_by_model: dict[str, tuple[Servo, float]] = _sort_servos_by_model(
@@ -323,7 +334,7 @@ def _bulk_write_protocol_two(
         dxl_addparam_result = group_bulk_write.addParam(
             servo_id, address, address_length, data
         )
-
+        print(servo_id, address, address_length, data)
         if not dxl_addparam_result:
             print(f"Failed to add parameter for Dynamixel ID {servo_id}")
             quit()
