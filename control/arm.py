@@ -1,118 +1,149 @@
-from util import set_position
-from servo_factory import servo_factory
-
+from .util import set_position, get_servo_position, set_servo_torque
+from .servo_factory import servo_factory
 import numpy as np
+import time
+
 
 
 class Arm:
     # define arm parameteres
-    L2, L3 = 380, 368 # TODO: update this
+    joint_limits = {
+        "joint_0": [150, 225],
+        "joint_1": [260, 310],
+        "joint_2": [230, 310]
+    }
 
     def __init__(self):
 
         self.servos = []
 
-        # ids = [5, 6, 7, 8]
-        ids = [5, 7, 8]
-        # models =["MX-106", "MX-64", "MX-64", "XL430-W250-T"]
-        # models =["MX-28", "MX-106", "MX-64", "XL430-W250-T"]
-        models =["MX-28", "MX-64", "XL430-W250-T"]
-        #Going toward the end of the arm, servos have ids 5-8
-        for i in range(4):
+        self.ids = [5, 7, 8]
+
+        self.models =["MX-28Protocol2", "MX-64Protocol2", "XL430-W250-T"]
+        
+        self.current_pose = 0 
+
+        self.poses = {
+                0: [150, 280, 260],
+                1: [225, 300, 300],
+                2: [175, 260, 240],
+
+
+
+            } # define motion here
+        
+        self.home_position = [2000, 3343, 3061]
+
+        for i in range(3):
             self.servos.append(
                 servo_factory.create_servo(
-                    model=models[i],
-                    port="/dev/ttyUSB0",
-                    protocol=(1 if models[i][:2] in ["MX", "AX"] else 2),
+                    model=self.models[i],
+                    port="/dev/ttyArm",
+                    protocol=(1 if self.models[i][:2] in ["AX"] else 2),
                     baudrate=1000000,
-                    max=2560, #need to figure out range of motion, for now 45 degrees
-                    min=1536,
-                    id = ids[i],
+                    max=4095, #need to figure out range of motion, for now 45 degrees
+                    min=0,
+                    id = self.ids[i],
                 )
             )
 
+    def move_random(self, active_joints: list=[0, 1, 2], t: int=4000):
 
-    # simplified inverse kinematics for 3 DOF arm (rough approximation of the real arm)
-    def simplified_inverse_kinematics(self, position: list[int]) -> list[int]:
+        # Set time profile
+        self.set_profile_time(joints=active_joints, t=t)
 
-        # define arm parameteres
-        
-        # L2, L3 = 1, 1 # TODO: update this
-        x, y, z = position
+        set_servo_torque(self.servos[0], enable=True) # Enable torque for joint 0
 
-        A = np.sqrt(x**2 + y**2)
-        B = np.sqrt(A**2 + z**2)
-        alpha = np.arctan2(z, A)     
-        beta = self._cosines_law(self.L2, B, self.L3)
-        gamma = self._cosines_law(self.L2, self.L3, B)
-        
-        # calculate theta1, theta2, theta3
-        theta1 = np.arctan2(y, x)
-        theta2 = alpha + beta
-        theta3 = -(np.pi - gamma)
-        
-        # +ve using right hand rule
-        # theta1: z-axis (pointing up), 0 degrees is along x-axis (pointing forward)
-        # theta2: y-axis (pointing left), 0 degrees is along x-axis (pointing forward)
-        # theta3: y-axis (pointing left), 0 degrees is along x-axis (pointing forward)
-        return [theta1, theta2, theta3]
+        new_poses= self.poses[self.current_pose] # Get servo angles
+        for joint in active_joints:
+            pos = new_poses[joint]
+            # Check if withing limts
+            if pos > self.joint_limits[f"joint_{joint}"][1]:
+                pos = self.joint_limits[f"joint_{joint}"][1]
+            elif pos < self.joint_limits[f"joint_{joint}"][0]:
+                pos = self.joint_limits[f"joint_{joint}"][0]
+            
+            new_pos = int(pos * 4096 / 360)
+            set_position([self.servos[joint]], [new_pos])
 
+        self.current_pose += 1 # Update the next pose
+        self.current_pose %= len(self.poses) # Making sure to not exceed the available number of poses
+        time.sleep(t//1000)
 
-    def move_arm(self, position: list[int]):
+        set_servo_torque(self.servos[0], enable=False) # Disable torque for joint 0
         
-        gear_ratio = 32 / 24
-        position = np.array(position)
-        
-        position[0] = position[0] + self.L2 + self.L3 - 100 # make the position relative to the most extended state -10 cm
-        theta = self.simplified_inverse_kinematics(position) 
-        theta = np.array(theta) * 180 / np.pi
 
-        theta = (-theta + 180) # 0 degrees when the servos are at 180 deg
-        theta[0] = int((theta[0]*gear_ratio) * 4095 / 360) # add the effect of the gear ratio
-        theta[1] = int((theta[1] - 30) * 4095 / 360) # add 30 degrees offset 
-        theta[2] = int((theta[2]) * 4095 / 360) # no offset
+    def move_joint_simple(self, joint_id: int, step: int=5, direc: int=1, t: int=4000):
+        is_limit_reached = 0
+        # Set time profile
+        self.set_profile_time(joints=[joint_id], t=t)
+
+        if joint_id == 0: 
+            set_servo_torque(self.servos[joint_id], enable=True)
+
+        # Read current servo position
+        current_pos = int(get_servo_position(self.servos[joint_id]) * 360 / 4096)
+        print(f'current {current_pos}')
+        # Step the position bu POS_STEP
+        new_pos = current_pos + step if direc > 0 else current_pos - step
+
+        # Check if withing limts
+        if new_pos > self.joint_limits[f"joint_{joint_id}"][1]:
+            new_pos = self.joint_limits[f"joint_{joint_id}"][1]
+            is_limit_reached = 1
+        elif new_pos < self.joint_limits[f"joint_{joint_id}"][0]:
+            new_pos = self.joint_limits[f"joint_{joint_id}"][0]
+            is_limit_reached = -1
+        # Convert degrees to positions
+        print(f"{joint_id}: move to {new_pos}")
+        new_pos = int(new_pos * 4096 / 360)
         
-        # move servo
-        set_position(self.servos, [int(theta[0]), int(theta[1]), int(theta[2])])
+
+        # Move servo to new_pos
+        set_position([self.servos[joint_id]], [new_pos])
+        time.sleep(t//1000 - 0.1)
+        if joint_id == 0: 
+            set_servo_torque(self.servos[joint_id], enable=False)
+        return is_limit_reached
     
+    def set_profile_time(self, joints: list[int], t):
+        VEL_PROFILE_ADDR = 112
 
-    def move_arm_joints(self, joint_id: int=0, joint_angle: int=0):
-        
-        gear_ratio = 32 / 24
-        
-        joint_angle = (-joint_angle + 180) # 0 degrees when the servos are at 180 deg
-        
-        if joint_id == 1:
-            joint_angle  = int((joint_angle*gear_ratio) * 4095 / 360) # add the effect of the gear ratio
-            set_position(self.servos[0], [joint_angle])
-        elif joint_id == 2:
-            joint_angle = int((joint_angle) * 4095 / 360) # no offset
-            set_position(self.servos[1], [joint_angle])
-        elif joint_id == 3:
-            joint_angle = int((joint_angle) * 4095 / 360) # no offset
-            set_position(self.servos[2], [joint_angle])
-        else: 
-            return
+        for joint in joints:
+            port_handler = self.servos[joint].port_handler
+            packet_handler = self.servos[joint].packet_handler
+            packet_handler.write4ByteTxRx(port_handler, self.ids[joint], VEL_PROFILE_ADDR, t)
     
+    
+    def handle_input(self, d_pad_x, d_pad_y, right_trigger, left_trigger):
 
-    @staticmethod
-    def _cosines_law(l1, l2, opposite_l):
-        return np.arccos((l1**2 + l2**2 - opposite_l**2)/(2*l1*l2))
+        if d_pad_x == -1: # move vertical axis joint (arm base joint)
+            self.move_joint_simple(joint_id=0, step=25, direc=-1, t=2000)
 
+        elif d_pad_x == 1:# move vertical axis joint (arm base joint)
+            self.move_joint_simple(joint_id=0, step=25, direc=1, t=2000)
 
-    def handle_input(self, key_1, key_2, key_3):
-        if key_1: 
+        elif d_pad_y == 1: # move arm joint (arm joint)
+            self.move_joint_simple(joint_id=1, step=5, direc=1, t=1500)
 
-            pass
-        else:
-            pass
+        if d_pad_y == -1: # move arm joint (arm joint)
+            self.move_joint_simple(joint_id=1, step=5, direc=-1, t=1500)
+
+        elif right_trigger > 0.1: # move camera joint
+            self.move_joint_simple(joint_id=2, step=15, direc=1, t=1000)
         
-        if key_2: 
-            pass
-        else:
-            pass
-        
-        if key_3: 
-            pass
-        else:
-            pass
+        elif left_trigger > 0.1:
+            self.move_joint_simple(joint_id=2, step=15, direc=-1, t=1000)
+
+    def move_to_home(self):
+        set_position(self.servos, self.home_position)
+
+
+
+
+
+
+
+
+
+
