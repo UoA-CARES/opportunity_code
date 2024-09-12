@@ -33,12 +33,14 @@ class Arm:
                 2: [160, 280, 260],
                 3: [160, 280, 260],
             } # define motion here
+        
+        self.home_position = [2000, 3343, 3061]
 
         for i in range(3):
             self.servos.append(
                 servo_factory.create_servo(
                     model=self.models[i],
-                    port="/dev/ttyUSB0",
+                    port="/dev/ttyArm",
                     # protocol=(1 if self.models[i][:2] in ["MX", "AX"] else 2),
                     protocol=(1 if self.models[i][:2] in ["AX"] else 2),
                     baudrate=1000000,
