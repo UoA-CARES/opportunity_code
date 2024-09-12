@@ -9,7 +9,7 @@ import time
 class Arm:
     # define arm parameteres
     joint_limits = {
-        "joint_0": [140, 200],
+        "joint_0": [150, 225],
         "joint_1": [260, 310],
         "joint_2": [230, 310]
     }
@@ -28,10 +28,12 @@ class Arm:
         self.current_pose = 0 
 
         self.poses = {
-                0: [160, 280, 260],
-                1: [160, 280, 260],
-                2: [160, 280, 260],
-                3: [160, 280, 260],
+                0: [150, 280, 260],
+                1: [225, 300, 300],
+                2: [175, 260, 240],
+
+
+
             } # define motion here
         
         self.home_position = [2000, 3343, 3061]
@@ -57,10 +59,9 @@ class Arm:
 
         set_servo_torque(self.servos[0], enable=True) # Enable torque for joint 0
 
-        new_pos = self.poses[self.current_pose] # Get servo angles
-
+        new_poses= self.poses[self.current_pose] # Get servo angles
         for joint in active_joints:
-            pos = new_pos[joint]
+            pos = new_poses[joint]
             # Check if withing limts
             if pos > self.joint_limits[f"joint_{joint}"][1]:
                 new_pos = self.joint_limits[f"joint_{joint}"][1]
@@ -121,6 +122,7 @@ class Arm:
     
     def handle_input(self, d_pad_x, d_pad_y, right_trigger, left_trigger):
         # print([left_d_pad, right_d_pad, up_d_pad, down_d_pad, right_trigger, left_trigger])
+
         if d_pad_x == -1: # move vertical axis joint (arm base joint)
             self.move_joint_simple(joint_id=0, step=25, direc=-1, t=2000)
 
@@ -143,24 +145,23 @@ class Arm:
         #     pass
 
     def random_movement(self, step=5, t=3000):
-        direc_0 = 1
-        direc_1 = 1
-        direc_2 = 1
+        
 
-        while True:
-            limit_0 = self.move_joint_simple(joint_id=0, step=step, direc=direc_0, t=t)
-            limit_1 = self.move_joint_simple(joint_id=1, step=step, direc=direc_1, t=t)
-            limit_2 = self.move_joint_simple(joint_id=2, step=step, direc=direc_2, t=t)
+        limit_0 = self.move_joint_simple(joint_id=0, step=step, direc=direc_0, t=t)
+        limit_1 = self.move_joint_simple(joint_id=1, step=step, direc=direc_1, t=t)
+        limit_2 = self.move_joint_simple(joint_id=2, step=step, direc=direc_2, t=t)
 
-            # Toggle direction
-            if limit_0 !=  0:
-                direc_0 *= -1
-            if limit_1 !=  0:
-                direc_1 *= -1
-            if limit_2 != 0:
-                direc_2 *= -1
+        # Toggle direction
+        if limit_0 !=  0:
+            direc_0 *= -1
+        if limit_1 !=  0:
+            direc_1 *= -1
+        if limit_2 != 0:
+            direc_2 *= -1
 
-            time.sleep(t//1000)
+            # time.sleep(t//1000)
+    def move_to_home(self):
+        set_position(self.servos, self.home_position)
 
 
     """

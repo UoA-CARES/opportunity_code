@@ -26,9 +26,13 @@ def main():
     end_event = Event()
     reset_event = Event()
 
+    end_event.set()
+    reset_event.clear()
+
     background_thread = threading.Thread(
         target=background_control, args=(arm, end_event, reset_event)
     )
+
 
     background_thread.start()
     while True:
@@ -60,6 +64,8 @@ def main():
             if end_event.is_set():
                 end_event.clear()
                 reset_event.set()
+            
+            
 
         time.sleep(0.01)
 
@@ -68,10 +74,11 @@ def background_control(arm: Arm, end_event: Event, reset_event: Event):
     while True:
 
         if end_event.is_set():
+            arm.move_to_home()
             reset_event.wait()
 
-        arm.move_random()
-        time.sleep(5)
+        arm.move_random(t=4000)
+        time.sleep(3)
 
 
 if __name__ == "__main__":
