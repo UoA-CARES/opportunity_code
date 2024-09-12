@@ -101,6 +101,8 @@ def set_velocity(servos, velocities):
     Note: servos aren't guaranteed to be the same model or protocol
     Assumption: Servos of the same model use the same protocol
     """
+    for servo in servos:
+        set_servo_torque(servo, True)
 
     # Group Servos based on Model
     servos_by_model: dict[str, tuple[Servo, float]] = _sort_servos_by_model(
@@ -186,6 +188,9 @@ def set_position(servos, positions):
     Note: servos aren't guaranteed to be the same model
     Assumption: Servos of the same model use the same protocol
     """
+
+    for servo in servos:
+        set_servo_torque(servo, True)
 
     # Group Servos based on Model
     servos_by_model: dict[str, tuple[Servo, float]] = _sort_servos_by_model(
