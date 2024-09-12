@@ -24,6 +24,16 @@ class Arm:
         # models =["MX-28", "MX-106", "MX-64", "XL430-W250-T"]
         self.models =["MX-28Protocol2", "MX-64Protocol2", "XL430-W250-T"]
         #Going toward the end of the arm, servos have ids 5-8
+        
+        self.current_pose = 0 
+
+        self.poses = {
+                0: [160, 280, 260],
+                1: [160, 280, 260],
+                2: [160, 280, 260],
+                3: [160, 280, 260],
+            } # define motion here
+
         for i in range(3):
             self.servos.append(
                 servo_factory.create_servo(
@@ -38,6 +48,32 @@ class Arm:
                 )
             )
 
+    def move_random(self, active_joints: list=[0, 1, 2], t: int=4000):
+
+        # Set time profile
+        self.set_profile_time(joints=active_joints, t=t)
+
+        set_servo_torque(self.servos[0], enable=True) # Enable torque for joint 0
+
+        new_pos = self.poses[self.current_pose] # Get servo angles
+
+        for joint in active_joints:
+            pos = new_pos[joint]
+            # Check if withing limts
+            if pos > self.joint_limits[f"joint_{joint}"][1]:
+                new_pos = self.joint_limits[f"joint_{joint}"][1]
+            elif pos < self.joint_limits[f"joint_{joint}"][0]:
+                pos = self.joint_limits[f"joint_{joint}"][0]
+            
+            new_pos = int(pos * 4096 / 360)
+            set_position([self.servos[joint]], [new_pos])
+
+        self.current_pose += 1 # Update the next pose
+        self.current_pose %= len(self.poses) # Making sure to not exceed the available number of poses
+        time.sleep(t//1000)
+
+        set_servo_torque(self.servos[0], enable=False) # Disable torque for joint 0
+        
 
     def move_joint_simple(self, joint_id: int, step: int=5, direc: int=1, t: int=4000):
         is_limit_reached = 0
