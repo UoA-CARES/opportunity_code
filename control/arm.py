@@ -59,7 +59,7 @@ class Arm:
             pos = new_poses[joint]
             # Check if withing limts
             if pos > self.joint_limits[f"joint_{joint}"][1]:
-                new_pos = self.joint_limits[f"joint_{joint}"][1]
+                pos = self.joint_limits[f"joint_{joint}"][1]
             elif pos < self.joint_limits[f"joint_{joint}"][0]:
                 pos = self.joint_limits[f"joint_{joint}"][0]
             
