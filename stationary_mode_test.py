@@ -15,10 +15,6 @@ from threading import Event
 
 
 def main():
-
-    wheels_lin_vel = 200
-    wheels_ang_vel = 200
-
     mast_ang_vel = 20
 
     # Instantiate the Components
