@@ -19,7 +19,7 @@ def main():
     joy = XboxController()
     sounds_effects = SoundEffects()
 
-    operating_mode = OperatingMode.STATIONARY
+    operating_mode = OperatingMode.EMERGENCY_STOP
 
     while True:
 

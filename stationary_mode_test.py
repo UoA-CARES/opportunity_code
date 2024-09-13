@@ -3,8 +3,8 @@ from control import (
     XboxController,
     OperatingMode,
     handle_operating_mode,
-    Wheels,
     Mast,
+    Arm,
     FaceTracker,
     SoundEffects,
     handle_check_mode,
@@ -15,8 +15,12 @@ from threading import Event
 
 
 def main():
+    mast_ang_vel = 20
 
-    mast = Mast()
+    # Instantiate the Components
+    mast = Mast(max_angular_velocity=mast_ang_vel)
+    arm = Arm()
+
     joy = XboxController()
     sounds_effects = SoundEffects()
     face_tracker = FaceTracker(replacement_mode="one")
@@ -27,11 +31,16 @@ def main():
     end_event = Event()
     reset_event = Event()
 
-    background_thread = threading.Thread(
-        target=background_control, args=(mast, face_tracker, end_event, reset_event)
+    arm_stationary_mode_thread = threading.Thread(
+        target=robotic_arm_stationary_mode, args=(arm, end_event, reset_event)
     )
 
-    background_thread.start()
+    camera_tracking_stationary_mode_thread = threading.Thread(
+        target=camera_tracking_stationary_mode, args=(mast, face_tracker, end_event, reset_event)
+    )
+
+    arm_stationary_mode_thread.start()
+    camera_tracking_stationary_mode_thread.start()
 
     while True:
 
@@ -48,39 +57,51 @@ def main():
         if handle_check_mode(control_inputs["check_mode"]):
             play_check_mode_sound(operating_mode, sounds_effects)
 
-        # Pause the stationary background threads if the operating mode is not stationary
+        # Pause the stationary background threads when not in stationary mode
         if operating_mode != OperatingMode.STATIONARY:
             end_event.set()
             reset_event.clear()
 
+        # Drive the wheels and mast
         if operating_mode == OperatingMode.DRIVE:
-            # Use Controller to drive the rover and control the mast
-            mast.handle_input(*control_inputs["mast"])
-            # wheels.handle_inputs(control_inputs["wheels"])
-        elif operating_mode == OperatingMode.ROBOTIC_ARM:
-            # Use Controller to control the robotic arm
             pass
+
+        # Control the robotic arm
+        elif operating_mode == OperatingMode.ROBOTIC_ARM:
+            arm.handle_input(*control_inputs["arm"])
+
+        # Robotic arm moves to random set positions
+        # Camera and Mast tracks the faces of participants
         elif operating_mode == OperatingMode.STATIONARY:
-            # Stationary mode
-            # Random robotic arm movement
-            # Camera track face, alien thing
 
             # Reset the flags for the stationary mode threads
             if end_event.is_set():
                 end_event.clear()
                 reset_event.set()
-
+        
+        # Stop all components
         elif operating_mode == OperatingMode.EMERGENCY_STOP:
-            # Send stop commands to all components
-            pass
-            # wheels.stop()
+            mast.stop_rotating()
+            mast.stop_tilting()
+            arm.move_to_home()
 
         time.sleep(0.01)
 
 
-def background_control(mast: Mast, face_tracker: FaceTracker, end_event: Event, reset_event: Event):
+def robotic_arm_stationary_mode(arm: Arm, end_event: Event, reset_event: Event):
 
-    i = 0
+    while True:
+
+        if end_event.is_set():
+            arm.move_to_home()
+            reset_event.wait()
+
+        arm.move_random(t=4000)
+        time.sleep(3)
+
+
+def camera_tracking_stationary_mode(mast: Mast, face_tracker: FaceTracker, end_event: Event, reset_event: Event):
+
     while face_tracker.is_facetracker():
 
         if end_event.is_set():
@@ -106,8 +127,6 @@ def background_control(mast: Mast, face_tracker: FaceTracker, end_event: Event, 
             mast.stop_tilting()
          
         time.sleep(0.1)
-        i += 1
-
 
 
 if __name__ == "__main__":
