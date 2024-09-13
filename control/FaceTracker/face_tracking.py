@@ -25,16 +25,10 @@ class FaceTracker():
         self.pipeline.start(self.config)
         
         self.face_cascade = cv.CascadeClassifier('control/FaceTracker/haarcascade_frontalface_default.xml')
-        # alien_image_path = os.path.join(os.getcwd(),'control/FaceTracker/alien_pictures/dab1.png')
-        # alien_image_path = os.path.join(os.getcwd(),'control/FaceTracker/alien_pictures/alien_1.png')
+        alien_image_path = os.path.join(os.getcwd(),'control/FaceTracker/alien_pictures/alien_1.png')
         # alien_image_path = os.path.join(os.getcwd(),'control/FaceTracker/alien_pictures/alien_2.png')
         # alien_image_path = os.path.join(os.getcwd(),'control/FaceTracker/alien_pictures/alien_3.png')
         # alien_image_path = os.path.join(os.getcwd(),'control/FaceTracker/alien_pictures/alien_4.png')
-        alien_image_path = os.path.join(os.getcwd(),'control/FaceTracker/alien_pictures/alien_5.png')
-
-        #alien_image_path = os.path.join(os.getcwd(),'alien_pictures/greensmileface.png')
-        #alien_image_path = os.path.join(os.getcwd(),'alien_pictures/purplealien.png')
-        #alien_image_path = os.path.join(os.getcwd(),'alien_pictures/spongebob.png')
 
         self.alien_image = cv.imread(alien_image_path, cv.IMREAD_UNCHANGED)
 
