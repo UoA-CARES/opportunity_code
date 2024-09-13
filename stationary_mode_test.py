@@ -18,14 +18,14 @@ def main():
     mast_ang_vel = 20
 
     # Instantiate the Components
-    mast = Mast(max_angular_velocity=mast_ang_vel)
+    mast = Mast(max_servo_speed=mast_ang_vel)
     arm = Arm()
 
     joy = XboxController()
     sounds_effects = SoundEffects()
     face_tracker = FaceTracker(replacement_mode="one")
 
-    operating_mode = OperatingMode.EMERGENCY_STOP
+    operating_mode = OperatingMode.STATIONARY
 
     # Set up background threads for stationary mode
     end_event = Event()
@@ -39,6 +39,9 @@ def main():
         target=camera_tracking_stationary_mode, args=(mast, face_tracker, end_event, reset_event)
     )
 
+    arm_stationary_mode_thread.daemon = True
+    camera_tracking_stationary_mode_thread.daemon = True
+    
     arm_stationary_mode_thread.start()
     camera_tracking_stationary_mode_thread.start()
 

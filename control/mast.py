@@ -1,4 +1,4 @@
-from .util import set_velocity, get_servo_position
+from .util import set_velocity, get_servo_position, set_servo_torque
 from .servo_factory import servo_factory
 
 
@@ -19,7 +19,7 @@ class Mast:
             self.servos.append(
                 servo_factory.create_servo(
                     model="XL430-W250-T" if i == 3 else "MX-28",
-                    port="/dev/ttyUSB1",
+                    port="/dev/ttyMast",
                     protocol=2 if i == 3 else 1,
                     baudrate=1000000,
                     # head servo needs to be limited to a range of motion of 90 degrees
@@ -29,8 +29,11 @@ class Mast:
                 )
             )
 
-        self.MAX_SERVO_POSITIONS = [2200, 1800]
-        self.MIN_SERVO_POSITIONS = [200, 1300]
+        for servo in self.servos:
+            set_servo_torque(servo, True)
+
+        self.MAX_SERVO_POSITIONS = [1200, 1950]
+        self.MIN_SERVO_POSITIONS = [100, 1300]
 
     def is_tilt_too_ccw(self):
         return get_servo_position(self.servos[1]) <= self.MIN_SERVO_POSITIONS[1]

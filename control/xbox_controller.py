@@ -7,7 +7,7 @@ class XboxController(object):
     MAX_TRIG_VAL = 1023  # The maximum value for triggers
     MAX_JOY_VAL = 65535  # The maximum value for joysticks
 
-    def __init__(self, device_path='/dev/input/event11'):
+    def __init__(self, device_path='/dev/input/event18'):
         self.device = InputDevice(device_path)
         self.LeftJoystickY = 0
         self.LeftJoystickX = 0
@@ -130,7 +130,6 @@ class XboxController(object):
 
 if __name__ == "__main__":
     # Replace '/dev/input/eventX' with the actual device path for your Xbox controller
-    device_path = '/dev/input/event11'
-    joy = XboxController(device_path)
+    joy = XboxController()
     while True:
         print(joy.read())

@@ -72,11 +72,14 @@ def get_servo_position(servo):
     """
     return servo.current_position()
 
-def set_servo_torque(servo, enable):
-    if enable:
-        servo.enable_torque()
-    else:
-        servo.disable_torque()
+def set_servo_torque(servo: Servo, enable):
+    try:
+        if enable and servo.protocol == 2:
+            servo.enable_torque()
+        else:
+            servo.disable_torque()
+    except:
+        pass
 
 def get_servo_positions(servos):
     """
@@ -101,8 +104,6 @@ def set_velocity(servos, velocities):
     Note: servos aren't guaranteed to be the same model or protocol
     Assumption: Servos of the same model use the same protocol
     """
-    for servo in servos:
-        set_servo_torque(servo, True)
 
     # Group Servos based on Model
     servos_by_model: dict[str, tuple[Servo, float]] = _sort_servos_by_model(
@@ -188,9 +189,6 @@ def set_position(servos, positions):
     Note: servos aren't guaranteed to be the same model
     Assumption: Servos of the same model use the same protocol
     """
-
-    for servo in servos:
-        set_servo_torque(servo, True)
 
     # Group Servos based on Model
     servos_by_model: dict[str, tuple[Servo, float]] = _sort_servos_by_model(

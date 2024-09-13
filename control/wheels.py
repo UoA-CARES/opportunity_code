@@ -1,4 +1,4 @@
-from .util import set_velocity
+from .util import set_velocity, set_servo_torque
 from .servo_factory import servo_factory
 
 
@@ -16,7 +16,7 @@ class Wheels:
             self.servos.append(
                 servo_factory.create_servo(
                     model="MX-106",
-                    port="/dev/ttyUSB0",
+                    port="/dev/ttyWheels",
                     protocol=1,
                     baudrate=1000000,
                     max=4095,
@@ -24,6 +24,9 @@ class Wheels:
                     id=i,
                 )
             )
+        
+        for servo in self.servos:
+            set_servo_torque(servo, True)
 
     def move_forward(self, speed):
         set_velocity(self.servos, [-speed, speed])

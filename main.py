@@ -27,7 +27,7 @@ def main():
         max_linear_velocity=wheels_lin_vel,
         max_angular_velocity=wheels_ang_vel,
     )
-    mast = Mast(max_angular_velocity=mast_ang_vel)
+    mast = Mast(max_servo_speed=mast_ang_vel)
     arm = Arm()
 
     joy = XboxController()
@@ -40,6 +40,9 @@ def main():
     end_event = Event()
     reset_event = Event()
 
+    end_event.set()
+    reset_event.clear()
+    
     arm_stationary_mode_thread = threading.Thread(
         target=robotic_arm_stationary_mode, args=(arm, end_event, reset_event)
     )
@@ -47,6 +50,9 @@ def main():
     camera_tracking_stationary_mode_thread = threading.Thread(
         target=camera_tracking_stationary_mode, args=(mast, face_tracker, end_event, reset_event)
     )
+
+    camera_tracking_stationary_mode_thread.daemon = True
+    arm_stationary_mode_thread.daemon = True
 
     arm_stationary_mode_thread.start()
     camera_tracking_stationary_mode_thread.start()
@@ -59,6 +65,10 @@ def main():
 
         # Alert the user if the operating mode has changed
         if new_operating_mode and operating_mode != new_operating_mode:
+            mast.stop_rotating()
+            mast.stop_tilting()
+            wheels.stop()
+            arm.move_to_home()
             operating_mode = new_operating_mode
             sounds_effects.play_change_mode()
 

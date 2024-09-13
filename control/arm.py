@@ -4,7 +4,6 @@ import numpy as np
 import time
 
 
-
 class Arm:
     # define arm parameteres
     joint_limits = {
@@ -46,6 +45,9 @@ class Arm:
                     id = self.ids[i],
                 )
             )
+
+        for servo in self.servos:
+            set_servo_torque(servo, True)
 
     def move_random(self, active_joints: list=[0, 1, 2], t: int=4000):
 
