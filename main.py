@@ -32,7 +32,7 @@ def main():
 
     joy = XboxController()
     sounds_effects = SoundEffects()
-    face_tracker = FaceTracker(replacement_mode="one")
+    face_tracker = FaceTracker(replacement_mode="all")
 
     operating_mode = OperatingMode.EMERGENCY_STOP
 
@@ -40,6 +40,7 @@ def main():
     end_event = Event()
     reset_event = Event()
 
+    # Background Threads should not be running on start
     end_event.set()
     reset_event.clear()
     

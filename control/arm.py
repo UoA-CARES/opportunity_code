@@ -26,9 +26,6 @@ class Arm:
                 0: [150, 280, 260],
                 1: [225, 300, 300],
                 2: [175, 260, 240],
-
-
-
             } # define motion here
         
         self.home_position = [2000, 3343, 3061]

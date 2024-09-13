@@ -25,6 +25,10 @@ def main():
     end_event = Event()
     reset_event = Event()
 
+    # Background Threads should not be running on start
+    end_event.set()
+    reset_event.clear()
+
     background_thread = threading.Thread(
         target=background_control, args=(mast, end_event, reset_event)
     )
