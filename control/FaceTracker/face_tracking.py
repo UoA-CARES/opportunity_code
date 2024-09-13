@@ -25,12 +25,18 @@ class FaceTracker():
         self.pipeline.start(self.config)
         
         self.face_cascade = cv.CascadeClassifier('control/FaceTracker/haarcascade_frontalface_default.xml')
-        alien_image_path = os.path.join(os.getcwd(),'control/FaceTracker/alien_pictures/dab1.png')
+        # alien_image_path = os.path.join(os.getcwd(),'control/FaceTracker/alien_pictures/dab1.png')
+        # alien_image_path = os.path.join(os.getcwd(),'control/FaceTracker/alien_pictures/alien_1.png')
+        # alien_image_path = os.path.join(os.getcwd(),'control/FaceTracker/alien_pictures/alien_2.png')
+        # alien_image_path = os.path.join(os.getcwd(),'control/FaceTracker/alien_pictures/alien_3.png')
+        # alien_image_path = os.path.join(os.getcwd(),'control/FaceTracker/alien_pictures/alien_4.png')
+        alien_image_path = os.path.join(os.getcwd(),'control/FaceTracker/alien_pictures/alien_5.png')
+
         #alien_image_path = os.path.join(os.getcwd(),'alien_pictures/greensmileface.png')
         #alien_image_path = os.path.join(os.getcwd(),'alien_pictures/purplealien.png')
         #alien_image_path = os.path.join(os.getcwd(),'alien_pictures/spongebob.png')
 
-        self.alien_image = cv.imread(alien_image_path)
+        self.alien_image = cv.imread(alien_image_path, cv.IMREAD_UNCHANGED)
 
         # create a thead for face detection and replacement
         self._face_detect_and_replace_thread = threading.Thread(
@@ -49,17 +55,61 @@ class FaceTracker():
         return faces
 
 
-    def replace_face(self,frame, faces, alien_image):
-        biggest_face = max(faces, key=lambda x: x[2]*x[3]) 
+    # def replace_face(self,frame, faces, alien_image):
+    #     biggest_face = max(faces, key=lambda x: x[2]*x[3]) 
+
+    #     if self.replacement_mode == 'all':
+    #         for (x, y, w, h) in faces:
+    #             alien_resized = cv.resize(alien_image,(w,h))
+    #             frame[y:y+h,x:x+w] = alien_resized 
+    #     else:
+    #         x,y,w,h = biggest_face[0], biggest_face[1], biggest_face[2], biggest_face[3]
+    #         alien_resized = cv.resize(alien_image,(w,h))
+    #         frame[y:y+h,x:x+w] = alien_resized 
+
+    #     return frame, biggest_face
+
+    def replace_face(self, frame, faces, alien_image):
+
+        # If the alien image does not have an alpha channel, throw an error
+        if alien_image.shape[2] != 4:
+            raise ValueError("Alien image does not have an alpha channel. Make sure it's a 4-channel PNG image.")
+
+        biggest_face = max(faces, key=lambda x: x[2] * x[3])
+
+        # Define a function to blend the alien image onto the face
+        def blend_alien(roi, alien_resized):
+            alien_rgb = alien_resized[:, :, :3]  # The color part
+            alien_alpha = alien_resized[:, :, 3] / 255.0  # Normalize the alpha channel to 0-1
+
+            # Perform alpha blending
+            for c in range(3):  # Iterate over the color channels (B, G, R)
+                roi[:, :, c] = (alien_alpha * alien_rgb[:, :, c] + (1 - alien_alpha) * roi[:, :, c])
+            return roi
 
         if self.replacement_mode == 'all':
+            # Replace all detected faces with the alien image
             for (x, y, w, h) in faces:
-                alien_resized = cv.resize(alien_image,(w,h))
-                frame[y:y+h,x:x+w] = alien_resized 
-        else:
-            x,y,w,h = biggest_face[0], biggest_face[1], biggest_face[2], biggest_face[3]
-            alien_resized = cv.resize(alien_image,(w,h))
-            frame[y:y+h,x:x+w] = alien_resized 
+                alien_resized = cv.resize(alien_image, (w, h))
+
+                # Extract the region of interest (ROI) in the frame where the face is
+                roi = frame[y:y + h, x:x + w]
+
+                # Blend the alien image with the frame
+                frame[y:y + h, x:x + w] = blend_alien(roi, alien_resized)
+
+        elif self.replacement_mode == 'biggest':
+            # Find the biggest face
+            
+            x, y, w, h = biggest_face
+
+            alien_resized = cv.resize(alien_image, (w, h))
+
+            # Extract the region of interest (ROI) in the frame where the biggest face is
+            roi = frame[y:y + h, x:x + w]
+
+            # Blend the alien image with the frame
+            frame[y:y + h, x:x + w] = blend_alien(roi, alien_resized)
 
         return frame, biggest_face
 
