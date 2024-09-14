@@ -3,7 +3,6 @@ from control import (
     XboxController,
     OperatingMode,
     handle_operating_mode,
-    Wheels,
     Mast,
     FaceTracker,
     SoundEffects,
