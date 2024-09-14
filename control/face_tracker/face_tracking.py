@@ -209,11 +209,13 @@ class FaceTracker():
 
     def _face_detect_and_replace(self):
         try:
+            cv.namedWindow("Alien", cv.WINDOW_NORMAL)
             while True:
                 frame = self.realtime_track()
 
                 if frame is not None:
-                    cv.imshow('ALien',frame) 
+                    frame = cv.resize(frame, dsize=(2880,1800), interpolation=cv.INTER_CUBIC)
+                    cv.imshow('Alien',frame) 
 
                 if cv.waitKey(1) & 0xFF == ord('q'):
                     break
