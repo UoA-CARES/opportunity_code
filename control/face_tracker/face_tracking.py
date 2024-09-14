@@ -10,7 +10,7 @@ class FaceTracker():
     
     IM_SIZE_H = 480
     IM_SIZE_W = 640
-    MOVE_THRESHOLD = 1/6
+    MOVE_THRESHOLD = 1/4
 
     def __init__(self, replacement_mode='all'):
         self.replacement_mode = replacement_mode
