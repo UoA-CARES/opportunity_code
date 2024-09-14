@@ -66,10 +66,6 @@ def main():
 
         # Alert the user if the operating mode has changed
         if new_operating_mode and operating_mode != new_operating_mode:
-            mast.stop_rotating()
-            mast.stop_tilting()
-            wheels.stop()
-            arm.move_to_home()
             operating_mode = new_operating_mode
             sounds_effects.play_change_mode()
 
