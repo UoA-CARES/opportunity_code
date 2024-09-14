@@ -37,6 +37,9 @@ def main():
         target=thread_two_control, args=(mast, end_event, reset_event)
     )
 
+    thread_one.daemon = True
+    thread_two.daemon = True
+    
     thread_one.start()
     thread_two.start()
 

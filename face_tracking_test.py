@@ -34,6 +34,7 @@ def main():
         target=background_control, args=(mast, face_tracker, end_event, reset_event)
     )
 
+    background_thread.daemon = True
     background_thread.start()
 
     while True:
