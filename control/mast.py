@@ -32,8 +32,8 @@ class Mast:
         for servo in self.servos:
             set_servo_torque(servo, True)
 
-        self.MAX_SERVO_POSITIONS = [1200, 1950]
-        self.MIN_SERVO_POSITIONS = [100, 1300]
+        self.MAX_SERVO_POSITIONS = [3800, 1950]
+        self.MIN_SERVO_POSITIONS = [2300, 1300]
 
     def is_tilt_too_ccw(self):
         return get_servo_position(self.servos[1]) <= self.MIN_SERVO_POSITIONS[1]
@@ -56,7 +56,6 @@ class Mast:
         # The servo wraps around at 4000
         return (
             get_servo_position(self.servos[0]) >= self.MAX_SERVO_POSITIONS[0]
-            and get_servo_position(self.servos[0]) < 3000
         )
 
     def is_rotation_within_bounds(self):
