@@ -45,6 +45,10 @@ class Arm:
 
         for servo in self.servos:
             set_servo_torque(servo, True)
+        
+        self.set_profile_time(joints=[0, 1, 2], t=4000)
+        
+
 
     def move_random(self, active_joints: list=[0, 1, 2], t: int=4000):
 
