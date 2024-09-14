@@ -96,3 +96,12 @@ class Wheels:
             self.turn_counter_clockwise(self.max_angular_velocity)
         else:
             self.stop()
+        
+
+        detailed_log = f"Sending Wheels Input: \n"\
+        "   Steering: {left_joy_x}\n"\
+        "   Forward: {right_trigger}\n"\
+        "   Backward: {left_trigger}"
+        log = f"Sending Wheels Input: {[left_joy_x, right_trigger, left_trigger]}"
+        print(log)
+

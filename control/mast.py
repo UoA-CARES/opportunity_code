@@ -109,8 +109,8 @@ class Mast:
         set_velocity([self.servos[1]], [0])
 
     def handle_input(self, right_bumper, left_bumper, right_joy_y):
-
         right_joy_y = round(right_joy_y, 1)
+
         if right_bumper == 1:
             self.rotate_clockwise(self.servo_speed)
         elif left_bumper == 1:
@@ -124,3 +124,11 @@ class Mast:
             self.tilt_down(self.servo_speed)
         else:
             self.stop_tilting()
+        
+        detailed_log = f"Sending Mast Inputs: \n"\
+        "   Rotate Clockwise: {right_bumper}\n"\
+        "   Rotate CounterClockwise: {left_bumper}\n"\
+        "   Tilt: {right_joy_y} up is +ve"
+
+        log = f"Sending Mast Inputs: {[right_bumper, left_bumper, right_joy_y]}"
+        print(log)
