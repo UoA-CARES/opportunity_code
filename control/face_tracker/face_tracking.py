@@ -10,7 +10,7 @@ class FaceTracker():
     
     IM_SIZE_H = 480
     IM_SIZE_W = 640
-    MOVE_THRESHOLD = 1/4
+    MOVE_THRESHOLD = 1/8
 
     def __init__(self, replacement_mode='all'):
         self.replacement_mode = replacement_mode
@@ -24,14 +24,14 @@ class FaceTracker():
         self.config.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 30)
         self.pipeline.start(self.config)
         
-        self.face_cascade = cv.CascadeClassifier('control/FaceTracker/haarcascade_frontalface_default.xml')
+        self.face_cascade = cv.CascadeClassifier('control/face_tracker/haarcascade_frontalface_default.xml')
 
         # Load multiple alien images
         alien_image_paths = [
-            os.path.join(os.getcwd(), 'control/FaceTracker/alien_pictures/alien_1.png'),
-            os.path.join(os.getcwd(), 'control/FaceTracker/alien_pictures/alien_2.png'),
-            os.path.join(os.getcwd(), 'control/FaceTracker/alien_pictures/alien_3.png'),
-            os.path.join(os.getcwd(), 'control/FaceTracker/alien_pictures/alien_4.png')
+            os.path.join(os.getcwd(), 'control/face_tracker/alien_pictures/alien_1.png'),
+            os.path.join(os.getcwd(), 'control/face_tracker/alien_pictures/alien_2.png'),
+            os.path.join(os.getcwd(), 'control/face_tracker/alien_pictures/alien_3.png'),
+            os.path.join(os.getcwd(), 'control/face_tracker/alien_pictures/alien_4.png')
         ]
 
         self.alien_image = cv.imread(random.choice(alien_image_paths), cv.IMREAD_UNCHANGED)
