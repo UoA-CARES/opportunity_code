@@ -7,7 +7,7 @@ class XboxController(object):
     MAX_TRIG_VAL = 1023  # The maximum value for triggers
     MAX_JOY_VAL = 65535  # The maximum value for joysticks
 
-    def __init__(self, device_path='/dev/input/event18'):
+    def __init__(self, device_path='/dev/input/event11'):
         self.device = InputDevice(device_path)
         self.LeftJoystickY = 0
         self.LeftJoystickX = 0

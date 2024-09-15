@@ -18,7 +18,7 @@ class Mast:
         for i in range(3, 5):
             self.servos.append(
                 servo_factory.create_servo(
-                    model="XL430-W250-T" if i == 3 else "MX-28",
+                    model="XM430-W350" if i == 3 else "MX-28",
                     port="/dev/ttyMast",
                     protocol=2 if i == 3 else 1,
                     baudrate=1000000,
@@ -32,8 +32,8 @@ class Mast:
         for servo in self.servos:
             set_servo_torque(servo, True)
 
-        self.MAX_SERVO_POSITIONS = [3800, 1950]
-        self.MIN_SERVO_POSITIONS = [2300, 1300]
+        self.MAX_SERVO_POSITIONS = [2500, 1950]
+        self.MIN_SERVO_POSITIONS = [600, 1300]
 
     def is_tilt_too_ccw(self):
         return get_servo_position(self.servos[1]) <= self.MIN_SERVO_POSITIONS[1]
