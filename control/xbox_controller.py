@@ -1,4 +1,4 @@
-from evdev import InputDevice, categorize, ecodes
+from evdev import InputDevice, categorize, ecodes, list_devices
 import threading
 import time
 import math
@@ -7,8 +7,18 @@ class XboxController(object):
     MAX_TRIG_VAL = 1023  # The maximum value for triggers
     MAX_JOY_VAL = 65535  # The maximum value for joysticks
 
-    def __init__(self, device_path='/dev/input/event11'):
-        self.device = InputDevice(device_path)
+    def __init__(self, device_path='/dev/input/event15'):
+
+        devices = [InputDevice(path) for path in list_devices()]
+
+        for device in devices:
+            if device.name == "Xbox Wireless Controller":
+                self.device = device
+
+        if not self.device:
+            print(f'No wireless controller found; defaulting to {device_path}')
+            self.device = InputDevice(device_path)
+
         self.LeftJoystickY = 0
         self.LeftJoystickX = 0
         self.RightJoystickY = 0
