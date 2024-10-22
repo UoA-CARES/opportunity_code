@@ -19,11 +19,15 @@ def main():
     joy = XboxController()
     sounds_effects = SoundEffects()
 
-    operating_mode = OperatingMode.STATIONARY
+    operating_mode = OperatingMode.EMERGENCY_STOP
 
     # Set up background threads for stationary mode
     end_event = Event()
     reset_event = Event()
+
+    # Pause background threads on start
+    end_event.set()
+    reset_event.clear()
 
     thread_one = threading.Thread(
         target=thread_one_control, args=(mast, end_event, reset_event)
@@ -33,6 +37,9 @@ def main():
         target=thread_two_control, args=(mast, end_event, reset_event)
     )
 
+    thread_one.daemon = True
+    thread_two.daemon = True
+    
     thread_one.start()
     thread_two.start()
 

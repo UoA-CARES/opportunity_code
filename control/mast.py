@@ -1,4 +1,4 @@
-from .util import set_velocity, get_servo_position
+from .util import set_velocity, get_servo_position, set_servo_torque
 from .servo_factory import servo_factory
 
 
@@ -18,8 +18,8 @@ class Mast:
         for i in range(3, 5):
             self.servos.append(
                 servo_factory.create_servo(
-                    model="XL430-W250-T" if i == 3 else "MX-28",
-                    port="/dev/ttyUSB1",
+                    model="XM430-W350" if i == 3 else "MX-28",
+                    port="/dev/ttyMast",
                     protocol=2 if i == 3 else 1,
                     baudrate=1000000,
                     # head servo needs to be limited to a range of motion of 90 degrees
@@ -29,8 +29,11 @@ class Mast:
                 )
             )
 
-        self.MAX_SERVO_POSITIONS = [2200, 1800]
-        self.MIN_SERVO_POSITIONS = [200, 1300]
+        for servo in self.servos:
+            set_servo_torque(servo, True)
+
+        self.MAX_SERVO_POSITIONS = [2500, 1950]
+        self.MIN_SERVO_POSITIONS = [600, 1300]
 
     def is_tilt_too_ccw(self):
         return get_servo_position(self.servos[1]) <= self.MIN_SERVO_POSITIONS[1]
@@ -53,7 +56,6 @@ class Mast:
         # The servo wraps around at 4000
         return (
             get_servo_position(self.servos[0]) >= self.MAX_SERVO_POSITIONS[0]
-            and get_servo_position(self.servos[0]) < 3000
         )
 
     def is_rotation_within_bounds(self):
@@ -106,8 +108,8 @@ class Mast:
         set_velocity([self.servos[1]], [0])
 
     def handle_input(self, right_bumper, left_bumper, right_joy_y):
-
         right_joy_y = round(right_joy_y, 1)
+
         if right_bumper == 1:
             self.rotate_clockwise(self.servo_speed)
         elif left_bumper == 1:
@@ -121,3 +123,11 @@ class Mast:
             self.tilt_down(self.servo_speed)
         else:
             self.stop_tilting()
+        
+        detailed_log = f"Sending Mast Inputs: \n"\
+        "   Rotate Clockwise: {right_bumper}\n"\
+        "   Rotate CounterClockwise: {left_bumper}\n"\
+        "   Tilt: {right_joy_y} up is +ve"
+
+        log = f"Sending Mast Inputs: {[right_bumper, left_bumper, right_joy_y]}"
+        print(log)

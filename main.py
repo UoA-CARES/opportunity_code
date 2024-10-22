@@ -27,12 +27,12 @@ def main():
         max_linear_velocity=wheels_lin_vel,
         max_angular_velocity=wheels_ang_vel,
     )
-    mast = Mast(max_angular_velocity=mast_ang_vel)
+    mast = Mast(max_servo_speed=mast_ang_vel)
     arm = Arm()
 
     joy = XboxController()
     sounds_effects = SoundEffects()
-    face_tracker = FaceTracker(replacement_mode="one")
+    face_tracker = FaceTracker(replacement_mode="all")
 
     operating_mode = OperatingMode.EMERGENCY_STOP
 
@@ -40,6 +40,10 @@ def main():
     end_event = Event()
     reset_event = Event()
 
+    # Background Threads should not be running on start
+    end_event.set()
+    reset_event.clear()
+    
     arm_stationary_mode_thread = threading.Thread(
         target=robotic_arm_stationary_mode, args=(arm, end_event, reset_event)
     )
@@ -47,6 +51,9 @@ def main():
     camera_tracking_stationary_mode_thread = threading.Thread(
         target=camera_tracking_stationary_mode, args=(mast, face_tracker, end_event, reset_event)
     )
+
+    camera_tracking_stationary_mode_thread.daemon = True
+    arm_stationary_mode_thread.daemon = True
 
     arm_stationary_mode_thread.start()
     camera_tracking_stationary_mode_thread.start()

@@ -3,7 +3,6 @@ from control import (
     XboxController,
     OperatingMode,
     handle_operating_mode,
-    Wheels,
     Mast,
     FaceTracker,
     SoundEffects,
@@ -19,18 +18,23 @@ def main():
     mast = Mast()
     joy = XboxController()
     sounds_effects = SoundEffects()
-    face_tracker = FaceTracker(replacement_mode="one")
+    face_tracker = FaceTracker(replacement_mode="all")
 
     operating_mode = OperatingMode.EMERGENCY_STOP
 
     # Set up background threads for stationary mode
     end_event = Event()
     reset_event = Event()
+    
+    # Background Threads should not be running on start
+    end_event.set()
+    reset_event.clear()
 
     background_thread = threading.Thread(
         target=background_control, args=(mast, face_tracker, end_event, reset_event)
     )
 
+    background_thread.daemon = True
     background_thread.start()
 
     while True:

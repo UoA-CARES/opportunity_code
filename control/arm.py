@@ -4,7 +4,6 @@ import numpy as np
 import time
 
 
-
 class Arm:
     # define arm parameteres
     joint_limits = {
@@ -27,9 +26,6 @@ class Arm:
                 0: [150, 280, 260],
                 1: [225, 300, 300],
                 2: [175, 260, 240],
-
-
-
             } # define motion here
         
         self.home_position = [2000, 3343, 3061]
@@ -46,6 +42,13 @@ class Arm:
                     id = self.ids[i],
                 )
             )
+
+        for servo in self.servos:
+            set_servo_torque(servo, True)
+        
+        self.set_profile_time(joints=[0, 1, 2], t=4000)
+        
+
 
     def move_random(self, active_joints: list=[0, 1, 2], t: int=4000):
 
@@ -83,7 +86,7 @@ class Arm:
 
         # Read current servo position
         current_pos = int(get_servo_position(self.servos[joint_id]) * 360 / 4096)
-        print(f'current {current_pos}')
+        # print(f'current {current_pos}')
         # Step the position bu POS_STEP
         new_pos = current_pos + step if direc > 0 else current_pos - step
 
@@ -95,7 +98,7 @@ class Arm:
             new_pos = self.joint_limits[f"joint_{joint_id}"][0]
             is_limit_reached = -1
         # Convert degrees to positions
-        print(f"{joint_id}: move to {new_pos}")
+        # print(f"{joint_id}: move to {new_pos}")
         new_pos = int(new_pos * 4096 / 360)
         
 
@@ -134,6 +137,14 @@ class Arm:
         
         elif left_trigger > 0.1:
             self.move_joint_simple(joint_id=2, step=15, direc=-1, t=1000)
+        
+        detailed_log = f"Sending Arm Inputs: \n"\
+        "   Lateral Movement: {d_pad_x}\n"\
+        "   Forward/Back: {d_pad_y}\n"\
+        "   Tilt Camera: {[right_trigger, left_trigger]}"
+
+        log = f"Sending Arm Inputs: {[d_pad_x, d_pad_y, right_trigger, left_trigger]}"
+        print(log)
 
     def move_to_home(self):
         set_position(self.servos, self.home_position)

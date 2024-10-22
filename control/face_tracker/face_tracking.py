@@ -4,15 +4,15 @@ import numpy as np
 import os 
 import threading
 import time
+import random
 
 class FaceTracker():
     
     IM_SIZE_H = 480
     IM_SIZE_W = 640
-    MOVE_THRESHOLD = 1/6
+    MOVE_THRESHOLD = 1/8
 
     def __init__(self, replacement_mode='all'):
-
         self.replacement_mode = replacement_mode
 
         self.tilt_up = 0 # 1 if true, -1 if need to tilt down, 0 otherwise        
@@ -21,25 +21,26 @@ class FaceTracker():
 
         self.pipeline = rs.pipeline()
         self.config = rs.config()
-        self.config.enable_stream(rs.stream.color,640,480,rs.format.bgr8,30)
+        self.config.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 30)
         self.pipeline.start(self.config)
         
-        self.face_cascade = cv.CascadeClassifier('control/FaceTracker/haarcascade_frontalface_default.xml')
-        alien_image_path = os.path.join(os.getcwd(),'control/FaceTracker/alien_pictures/alien_1.png')
-        # alien_image_path = os.path.join(os.getcwd(),'control/FaceTracker/alien_pictures/alien_2.png')
-        # alien_image_path = os.path.join(os.getcwd(),'control/FaceTracker/alien_pictures/alien_3.png')
-        # alien_image_path = os.path.join(os.getcwd(),'control/FaceTracker/alien_pictures/alien_4.png')
+        self.face_cascade = cv.CascadeClassifier('control/face_tracker/haarcascade_frontalface_default.xml')
 
-        self.alien_image = cv.imread(alien_image_path, cv.IMREAD_UNCHANGED)
+        # Load multiple alien images
+        alien_image_paths = [
+            os.path.join(os.getcwd(), 'control/face_tracker/alien_pictures/alien_1.png'),
+            os.path.join(os.getcwd(), 'control/face_tracker/alien_pictures/alien_2.png'),
+            os.path.join(os.getcwd(), 'control/face_tracker/alien_pictures/alien_3.png'),
+            os.path.join(os.getcwd(), 'control/face_tracker/alien_pictures/alien_4.png')
+        ]
 
-        # create a thead for face detection and replacement
+        self.alien_image = cv.imread(random.choice(alien_image_paths), cv.IMREAD_UNCHANGED)
+
+        # Create a thread for face detection and replacement
         self._face_detect_and_replace_thread = threading.Thread(
             target=self._face_detect_and_replace, args=()
         )
-
         self._face_detect_and_replace_thread.daemon = True
-
-        # start thread
         self._face_detect_and_replace_thread.start()
         
 
@@ -63,17 +64,17 @@ class FaceTracker():
 
     #     return frame, biggest_face
 
-    def replace_face(self, frame, faces, alien_image):
 
-        # If the alien image does not have an alpha channel, throw an error
+    def replace_face(self, frame, faces, alien_image, scale_factor=2):
+        # Check if the alien image has an alpha channel
         if alien_image.shape[2] != 4:
             raise ValueError("Alien image does not have an alpha channel. Make sure it's a 4-channel PNG image.")
 
         biggest_face = max(faces, key=lambda x: x[2] * x[3])
 
-        # Define a function to blend the alien image onto the face
         def blend_alien(roi, alien_resized):
-            alien_rgb = alien_resized[:, :, :3]  # The color part
+            # Extract the RGB and alpha channels from alien_resized
+            alien_rgb = alien_resized[:, :, :3]  # The color part (RGB)
             alien_alpha = alien_resized[:, :, 3] / 255.0  # Normalize the alpha channel to 0-1
 
             # Perform alpha blending
@@ -82,28 +83,63 @@ class FaceTracker():
             return roi
 
         if self.replacement_mode == 'all':
-            # Replace all detected faces with the alien image
             for (x, y, w, h) in faces:
-                alien_resized = cv.resize(alien_image, (w, h))
+                # Calculate new dimensions considering the scale factor
+                new_w = int(w * scale_factor)
+                new_h = int(h * scale_factor)
+
+                # Resize the alien image to the scaled face dimensions
+                alien_resized = cv.resize(alien_image, (new_w, new_h))
 
                 # Extract the region of interest (ROI) in the frame where the face is
-                roi = frame[y:y + h, x:x + w]
+                roi_x_start = x - int((new_w - w) / 2)
+                roi_y_start = y - int((new_h - h) / 2)
+
+                # Ensure ROI coordinates are within frame boundaries
+                roi_x_start = max(0, roi_x_start)
+                roi_y_start = max(0, roi_y_start)
+                roi_x_end = min(frame.shape[1], roi_x_start + new_w)
+                roi_y_end = min(frame.shape[0], roi_y_start + new_h)
+
+                # Ensure ROI dimensions match the resized alien image
+                roi = frame[roi_y_start:roi_y_end, roi_x_start:roi_x_end]
+
+                # Resize alien_resized to match the ROI dimensions if necessary
+                if alien_resized.shape[0] != roi.shape[0] or alien_resized.shape[1] != roi.shape[1]:
+                    alien_resized = cv.resize(alien_resized, (roi.shape[1], roi.shape[0]))
 
                 # Blend the alien image with the frame
-                frame[y:y + h, x:x + w] = blend_alien(roi, alien_resized)
+                frame[roi_y_start:roi_y_end, roi_x_start:roi_x_end] = blend_alien(roi, alien_resized)
 
         elif self.replacement_mode == 'biggest':
-            # Find the biggest face
-            
             x, y, w, h = biggest_face
 
-            alien_resized = cv.resize(alien_image, (w, h))
+            # Calculate new dimensions considering the scale factor
+            new_w = int(w * scale_factor)
+            new_h = int(h * scale_factor)
+
+            # Resize the alien image to the scaled face dimensions
+            alien_resized = cv.resize(alien_image, (new_w, new_h))
 
             # Extract the region of interest (ROI) in the frame where the biggest face is
-            roi = frame[y:y + h, x:x + w]
+            roi_x_start = x - int((new_w - w) / 2)
+            roi_y_start = y - int((new_h - h) / 2)
+
+            # Ensure ROI coordinates are within frame boundaries
+            roi_x_start = max(0, roi_x_start)
+            roi_y_start = max(0, roi_y_start)
+            roi_x_end = min(frame.shape[1], roi_x_start + new_w)
+            roi_y_end = min(frame.shape[0], roi_y_start + new_h)
+
+            # Ensure ROI dimensions match the resized alien image
+            roi = frame[roi_y_start:roi_y_end, roi_x_start:roi_x_end]
+
+            # Adjust dimensions if necessary to fit within the ROI
+            if alien_resized.shape[0] > roi.shape[0] or alien_resized.shape[1] > roi.shape[1]:
+                alien_resized = cv.resize(alien_resized, (roi.shape[1], roi.shape[0]))
 
             # Blend the alien image with the frame
-            frame[y:y + h, x:x + w] = blend_alien(roi, alien_resized)
+            frame[roi_y_start:roi_y_end, roi_x_start:roi_x_end] = blend_alien(roi, alien_resized)
 
         return frame, biggest_face
 
@@ -173,11 +209,13 @@ class FaceTracker():
 
     def _face_detect_and_replace(self):
         try:
+            cv.namedWindow("Alien", cv.WINDOW_NORMAL)
             while True:
                 frame = self.realtime_track()
 
                 if frame is not None:
-                    cv.imshow('ALien',frame) 
+                    frame = cv.resize(frame, dsize=(2880,1800), interpolation=cv.INTER_CUBIC)
+                    cv.imshow('Alien',frame) 
 
                 if cv.waitKey(1) & 0xFF == ord('q'):
                     break
